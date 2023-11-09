@@ -1,4 +1,9 @@
+using Smarket.Extentions;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddApplicationService(builder.Configuration);
+builder.Services.AddIdentityService(builder.Configuration);
+
 
 // Add services to the container.
 
@@ -17,7 +22,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
