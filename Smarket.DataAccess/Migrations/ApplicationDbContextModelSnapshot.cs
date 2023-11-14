@@ -128,7 +128,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.CartItem", b =>
@@ -144,7 +144,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.Category", b =>
@@ -165,7 +165,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.Image", b =>
@@ -184,7 +184,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.Inventory", b =>
@@ -200,7 +200,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Inventories");
+                    b.ToTable("Inventories", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.Order", b =>
@@ -225,7 +225,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.OrderItem", b =>
@@ -243,7 +243,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.Package", b =>
@@ -291,7 +291,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Packages");
+                    b.ToTable("Packages", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.Product", b =>
@@ -325,7 +325,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.Role", b =>
@@ -376,7 +376,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategories");
+                    b.ToTable("SubCategories", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.User", b =>
@@ -493,7 +493,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserReviews");
+                    b.ToTable("UserReviews", (string)null);
                 });
 
             modelBuilder.Entity("Smarket.Models.UserRole", b =>
