@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
+using Smarket.Models.ViewModels;
 
 namespace Smarket.Controllers
 {
@@ -53,6 +54,31 @@ namespace Smarket.Controllers
             _unitOfWork.Inventory.Delete(obj);
             await _unitOfWork.Save();
             return Ok();
+        }
+
+        [HttpGet("Details")]
+        public async Task<IActionResult> Details(int? id)
+        {
+            var obj = await _unitOfWork.Category.FirstOrDefaultAsync(u => u.Id == id);
+
+            if (obj == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(obj);
+        }
+
+        [HttpPost("Edit")]
+        public async Task<IActionResult> Edit(Inventory obj)
+        {
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.Inventory.Update(obj);
+
+                await _unitOfWork.Save();
+            }
+            return Ok(obj);
         }
 
     }
