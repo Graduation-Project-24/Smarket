@@ -135,14 +135,14 @@ namespace Smarket.Controllers
             return Ok(viewModel);
         }
 
-        [HttpGet("GetBySubCategory/{subCategoryId}")]
+        [HttpGet("GetBySubCategory")]
         public async Task<IActionResult> GetBySubCategory(int? subCategoryId)
         {
             var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.SubCategoryId == subCategoryId);
             return Ok(products);
         }
 
-        [HttpGet("GetByBrand/{brandId}")]
+        [HttpGet("GetByBrand")]
         public async Task<IActionResult> GetByBrand(int? brandId)
         {
             var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.BrandId == brandId);
