@@ -18,16 +18,16 @@ namespace Smarket.Models.ViewModels
         public double? AvgRate { get; set; }
 
         public string? Comment { get; set; }
-        public int? BrandId { get; set; }
+        public int BrandId { get; set; }
 
         [ValidateNever]
         public Brand Brand { get; set; }
 
-        public int? SubCategoryId { get; set; }
+        public int SubCategoryId { get; set; }
 
         [ValidateNever]
         public SubCategory SubCategory { get; set; }
-        public int? ImageId { get; set; }
+        public int ImageId { get; set; }
 
         [ValidateNever]
         public Image Image { get; set; }
