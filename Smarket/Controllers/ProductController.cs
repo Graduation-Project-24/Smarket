@@ -59,7 +59,7 @@ namespace Smarket.Controllers
 
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
             var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
@@ -72,8 +72,8 @@ namespace Smarket.Controllers
             }
         }
 
-        [HttpGet("Edit/{id}")]
-        public async Task<IActionResult> Edit(int? id)
+        [HttpGet("GetoneProduct/{id}")]
+        public async Task<IActionResult> GetoneProduct(int id)
         {
             var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id);
             if (product == null)
@@ -95,6 +95,7 @@ namespace Smarket.Controllers
                 return Ok(viewModel);
             }
         }
+
         [HttpPost("Edit/{id}")]
         public async Task<IActionResult> Edit(Product product)
         {
@@ -136,14 +137,14 @@ namespace Smarket.Controllers
         }
 
         [HttpGet("GetBySubCategory")]
-        public async Task<IActionResult> GetBySubCategory(int? subCategoryId)
+        public async Task<IActionResult> GetBySubCategory(int subCategoryId)
         {
             var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.SubCategoryId == subCategoryId);
             return Ok(products);
         }
 
         [HttpGet("GetByBrand")]
-        public async Task<IActionResult> GetByBrand(int? brandId)
+        public async Task<IActionResult> GetByBrand(int brandId)
         {
             var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.BrandId == brandId);
             return Ok(products);

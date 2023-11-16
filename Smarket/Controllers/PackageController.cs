@@ -60,7 +60,7 @@ namespace Smarket.Controllers
 
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
             var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
@@ -74,7 +74,7 @@ namespace Smarket.Controllers
         }
 
         [HttpGet("Details/{id}")]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
             var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
