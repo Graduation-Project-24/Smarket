@@ -34,7 +34,7 @@ namespace Smarket.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create()
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 await _unitOfWork.Inventory.AddAsync(new Inventory());
             }
@@ -43,30 +43,28 @@ namespace Smarket.Controllers
         }
 
 
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
             var obj = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
+                return NotFound();
+            else
             {
+                _unitOfWork.Inventory.Delete(obj);
+                await _unitOfWork.Save();
                 return Ok();
             }
-            _unitOfWork.Inventory.Delete(obj);
-            await _unitOfWork.Save();
-            return Ok();
         }
 
-        [HttpGet("Details")]
+        [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int? id)
         {
             var obj = await _unitOfWork.Category.FirstOrDefaultAsync(u => u.Id == id);
-
             if (obj == null)
-            {
                 return NotFound();
-            }
-
-            return Ok(obj);
+            else
+                return Ok(obj);
         }
 
         [HttpPost("Edit")]
@@ -75,7 +73,6 @@ namespace Smarket.Controllers
             if (ModelState.IsValid)
             {
                 _unitOfWork.Inventory.Update(obj);
-
                 await _unitOfWork.Save();
             }
             return Ok(obj);

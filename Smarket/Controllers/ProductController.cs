@@ -36,66 +36,82 @@ namespace Smarket.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create(ProductVM viewModel)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 viewModel.SubCategories = await _unitOfWork.SubCategory.GetAllAsync();
                 viewModel.Brands = await _unitOfWork.Brand.GetAllAsync();
+
+                Product product = new()
+                {
+                    Name = viewModel.Name,
+                    Description = viewModel.Description,
+                    //Price = viewModel.Price,
+                    BrandId = viewModel.BrandId,
+                    SubCategoryId = viewModel.SubCategoryId,
+                    ImageId = viewModel.ImageId
+                };
+
+                await _unitOfWork.Product.AddAsync(product);
+                await _unitOfWork.Save();
                 return Ok(viewModel);
             }
-
-            Product product = new()
-            {
-                Name = viewModel.Name,
-                Description = viewModel.Description,
-                Price = viewModel.Price,
-                BrandId = (int)viewModel.BrandId,
-                SubCategoryId = (int)viewModel.SubCategoryId,
-                ImageId = (int)viewModel.ImageId
-            };
-
-            await _unitOfWork.Product.AddAsync(product);
-            await _unitOfWork.Save();
-            return Ok();
+            else
+                return NotFound();
         }
 
 
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int? id)
         {
             var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
+                return NotFound();
+            else
             {
+                _unitOfWork.Product.Delete(obj);
+                await _unitOfWork.Save();
                 return Ok();
             }
-            _unitOfWork.Product.Delete(obj);
-            await _unitOfWork.Save();
-            return Ok();
         }
 
-        [HttpPost("Edit")]
+        [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(int? id)
         {
             var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id);
             if (product == null)
                 return NotFound();
-
-            ProductVM viewModel = new ProductVM
+            else
             {
-                Id = product.Id,
-                Name = product.Name,
-                BrandId = product.BrandId,
-                SubCategoryId = product.SubCategoryId,
-                Price = product.Price,
-                Description = product.Description,
-                ImageId = product.ImageId,
-                SubCategories = await _unitOfWork.SubCategory.GetAllAsync(),
-                Brands = (await _unitOfWork.Brand.GetAllAsync())
-            };
-
-            return Ok(viewModel);
+                ProductVM viewModel = new()
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    BrandId = product.BrandId,
+                    SubCategoryId = product.SubCategoryId,
+                    //Price = product.Price,
+                    Description = product.Description,
+                    ImageId = product.ImageId,
+                    SubCategories = await _unitOfWork.SubCategory.GetAllAsync(),
+                    Brands = (await _unitOfWork.Brand.GetAllAsync())
+                };
+                return Ok(viewModel);
+            }
+        }
+        [HttpPost("Edit/{id}")]
+        public async Task<IActionResult> Edit(Product product)
+        {
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.Product.Update(product);
+                await _unitOfWork.Save();
+                return Ok(product);
+            }
+            else
+                return NotFound();
         }
 
-        [HttpGet("Details")]
+
+        [HttpGet("Details/{productId}")]
         public async Task<IActionResult> Details(int productId)
         {
             Product product = await _unitOfWork.Product.FirstOrDefaultAsync(p => p.Id == productId);
@@ -106,7 +122,7 @@ namespace Smarket.Controllers
                 Name = product.Name,
                 BrandId = product.BrandId,
                 SubCategoryId = product.SubCategoryId,
-                Price = product.Price,
+                //Price = product.Price,
                 Description = product.Description,
                 ImageId = product.ImageId,
                 Brand = product.Brand,
