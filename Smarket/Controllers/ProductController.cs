@@ -3,7 +3,6 @@ using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.ViewModels;
 
-
 namespace Smarket.Controllers
 {
     [Route("api/[controller]")]
@@ -30,8 +29,7 @@ namespace Smarket.Controllers
                 return BadRequest(ex.Message);
             }
             
-        }
-
+        }        
 
         [HttpPost("Create")]
         public async Task<IActionResult> Create(ProductVM viewModel)
@@ -137,6 +135,19 @@ namespace Smarket.Controllers
             return Ok(viewModel);
         }
 
+        [HttpGet("GetBySubCategory/{subCategoryId}")]
+        public async Task<IActionResult> GetBySubCategory(int? subCategoryId)
+        {
+            var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.SubCategoryId == subCategoryId);
+            return Ok(products);
+        }
 
+        [HttpGet("GetByBrand/{brandId}")]
+        public async Task<IActionResult> GetByBrand(int? brandId)
+        {
+            var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.BrandId == brandId);
+            return Ok(products);
+        }        
+        
     }
 }
