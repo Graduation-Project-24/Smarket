@@ -5,9 +5,7 @@ using Smarket.Models.ViewModels;
 
 namespace Smarket.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class PackageController : ControllerBase
+    public class PackageController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -32,7 +30,7 @@ namespace Smarket.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(PackageVM viewModel)
+        public async Task<IActionResult> Create(PackageDto viewModel)
         {
             if (ModelState.IsValid)
             {

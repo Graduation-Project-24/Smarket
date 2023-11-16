@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Smarket.Models.ViewModels
 {
-    public class PackageVM
+    public class PackageDto
     {
         public int Id { get; set; }
         public string Name { get; set; }

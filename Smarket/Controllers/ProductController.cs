@@ -32,7 +32,7 @@ namespace Smarket.Controllers
         }        
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(ProductVM viewModel)
+        public async Task<IActionResult> Create(ProductDto viewModel)
         {
             if (ModelState.IsValid)
             {
@@ -80,7 +80,7 @@ namespace Smarket.Controllers
                 return NotFound();
             else
             {
-                ProductVM viewModel = new()
+                ProductDto viewModel = new()
                 {
                     Id = product.Id,
                     Name = product.Name,
@@ -114,7 +114,7 @@ namespace Smarket.Controllers
         {
             Product product = await _unitOfWork.Product.FirstOrDefaultAsync(p => p.Id == productId);
             var RateList = await _unitOfWork.UserReview.GetAllAsync(a => a.ProductId == product.Id);
-            ProductVM viewModel = new()
+            ProductDto viewModel = new()
             {
                 Id = product.Id,
                 Name = product.Name,
