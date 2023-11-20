@@ -20,7 +20,7 @@ namespace Smarket.Controllers
             try
             {
                 // Include Inventory and Product
-                var Packages = await _unitOfWork.Package.GetAllAsync();
+                var Packages = await _unitOfWork.Package.GetAllAsync(includeProperties: p => new string[] {"Product", "Inventory"});
                 return Ok(Packages);
             }
             catch (Exception ex)
@@ -35,9 +35,6 @@ namespace Smarket.Controllers
         {
             if (ModelState.IsValid)
             {
-                viewModel.Inventories = await _unitOfWork.Inventory.GetAllAsync();
-                viewModel.Products = await _unitOfWork.Product.GetAllAsync();
-
                 Package package = new()
                 {
                     Date = viewModel.Date,
@@ -63,7 +60,7 @@ namespace Smarket.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
+            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Product", "Inventory" });
             if (obj == null)
                 return NotFound();
             else
@@ -77,7 +74,7 @@ namespace Smarket.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
+            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Product", "Inventory" });
             if (obj == null)
                 return NotFound();
             else
@@ -87,13 +84,19 @@ namespace Smarket.Controllers
         [HttpPost("Edit")]
         public async Task<IActionResult> Edit(Package obj)
         {
+            var package = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == obj.Id, includeProperties: p => new string[] { "Product", "Inventory" });
+
             if (ModelState.IsValid)
             {
                 _unitOfWork.Package.Update(obj);
                 await _unitOfWork.Save();
+                return Ok(obj);
             }
-            return Ok(obj);
+            else
+                return NotFound();
+            
         }
 
     }
 }
+

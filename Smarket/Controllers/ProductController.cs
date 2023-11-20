@@ -22,7 +22,7 @@ namespace Smarket.Controllers
             try
             {
                 // Include SubCategory and Brand
-                var products = await _unitOfWork.Product.GetAllAsync();
+                var products = await _unitOfWork.Product.GetAllAsync(includeProperties: p => new string[] { "SubCategory", "Brand" });
                 return Ok(products);
             }
             catch (Exception ex)
@@ -37,14 +37,10 @@ namespace Smarket.Controllers
         {
             if (ModelState.IsValid)
             {
-                viewModel.SubCategories = await _unitOfWork.SubCategory.GetAllAsync();
-                viewModel.Brands = await _unitOfWork.Brand.GetAllAsync();
-
                 Product product = new()
                 {
                     Name = viewModel.Name,
                     Description = viewModel.Description,
-                    //Price = viewModel.Price,
                     BrandId = viewModel.BrandId,
                     SubCategoryId = viewModel.SubCategoryId,
                     ImageId = viewModel.ImageId
@@ -62,7 +58,7 @@ namespace Smarket.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id);
+            var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "SubCategory", "Brand" });
             if (obj == null)
                 return NotFound();
             else
@@ -76,7 +72,9 @@ namespace Smarket.Controllers
         [HttpGet("GetoneProduct/{id}")]
         public async Task<IActionResult> GetoneProduct(int id)
         {
-            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id);
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "SubCategory", "Brand" });
+            var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.ProductId == product.Id, includeProperties: p => new string[] { "Product", "Inventory" });
+
             if (product == null)
                 return NotFound();
             else
@@ -86,25 +84,24 @@ namespace Smarket.Controllers
                     Id = product.Id,
                     Name = product.Name,
                     BrandId = product.BrandId,
+                    Price = package.ListPrice,
                     SubCategoryId = product.SubCategoryId,
-                    //Price = product.Price,
                     Description = product.Description,
                     ImageId = product.ImageId,
-                    SubCategories = await _unitOfWork.SubCategory.GetAllAsync(),
-                    Brands = (await _unitOfWork.Brand.GetAllAsync())
                 };
                 return Ok(viewModel);
             }
         }
         // you making routing with id and paramter is Product?,first search for product then update
-        [HttpPost("Edit/{id}")]
-        public async Task<IActionResult> Edit(Product product)
+        [HttpPost("Edit")]
+        public async Task<IActionResult> Edit(Product obj)
         {
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == obj.Id, includeProperties: p => new string[] { "SubCategory", "Brand" });
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Update(product);
+                _unitOfWork.Product.Update(obj);
                 await _unitOfWork.Save();
-                return Ok(product);
+                return Ok(obj);
             }
             else
                 return NotFound();
@@ -114,15 +111,17 @@ namespace Smarket.Controllers
         [HttpGet("Details/{productId}")]
         public async Task<IActionResult> Details(int productId)
         {
-            Product product = await _unitOfWork.Product.FirstOrDefaultAsync(p => p.Id == productId);
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(p => p.Id == productId, includeProperties: p => new string[] { "SubCategory", "Brand" });
+            var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.ProductId == product.Id, includeProperties: p => new string[] { "Product", "Inventory" });
             var RateList = await _unitOfWork.UserReview.GetAllAsync(a => a.ProductId == product.Id);
+
             ProductDto viewModel = new()
             {
                 Id = product.Id,
                 Name = product.Name,
                 BrandId = product.BrandId,
                 SubCategoryId = product.SubCategoryId,
-                //Price = product.Price,
+                Price = package.ListPrice,
                 Description = product.Description,
                 ImageId = product.ImageId,
                 Brand = product.Brand,
@@ -136,6 +135,7 @@ namespace Smarket.Controllers
             viewModel.AvgRate = temp / RateList.Count();
             return Ok(viewModel);
         }
+
 
         [HttpGet("GetBySubCategory")]
         public async Task<IActionResult> GetBySubCategory(int subCategoryId)
