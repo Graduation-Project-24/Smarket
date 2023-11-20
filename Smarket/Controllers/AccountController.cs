@@ -177,7 +177,7 @@ namespace Smarket.Controllers
        
 
 
-    };
+                };
 
                 var result = await _userManager.CreateAsync(user, registerDto.Password);
 
