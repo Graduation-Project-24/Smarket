@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
-using Smarket.Models.ViewModels;
 
 namespace Smarket.Controllers
 {
@@ -23,7 +22,7 @@ namespace Smarket.Controllers
         {
             try
             {
-                var Inventories = await _unitOfWork.Inventory.GetAllAsync();
+                var Inventories = await _unitOfWork.Inventory.GetAllAsync(includeProperties: p => new string[] { "Package" });
                 return Ok(Inventories);
             }
             catch (Exception ex)
@@ -36,11 +35,11 @@ namespace Smarket.Controllers
         // This Method must have Parameter (Inventory)
         // Then pass this parameter to AddAsync()
         [HttpPost("Create")]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(Inventory obj)
         {
             if (ModelState.IsValid)
             {
-                await _unitOfWork.Inventory.AddAsync(new Inventory());
+                await _unitOfWork.Inventory.AddAsync(obj);
             }
             await _unitOfWork.Save();
             return Ok();
@@ -50,7 +49,7 @@ namespace Smarket.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var obj = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == id);
+            var obj = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Package" });
             if (obj == null)
                 return NotFound();
             else
@@ -64,22 +63,28 @@ namespace Smarket.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var obj = await _unitOfWork.Category.FirstOrDefaultAsync(u => u.Id == id);
+            var obj = await _unitOfWork.Category.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Package" });
             if (obj == null)
                 return NotFound();
             else
                 return Ok(obj);
         }
+
         // Search for package first then update it 
         [HttpPost("Edit")]
         public async Task<IActionResult> Edit(Inventory obj)
         {
+            var inventory = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == obj.Id, includeProperties: p => new string[] { "Package" });
+            
             if (ModelState.IsValid)
             {
                 _unitOfWork.Inventory.Update(obj);
                 await _unitOfWork.Save();
+                return Ok(obj);
             }
-            return Ok(obj);
+            else
+                return NotFound();
+
         }
 
     }
