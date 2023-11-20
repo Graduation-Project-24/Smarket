@@ -19,6 +19,7 @@ namespace Smarket.Controllers
         {
             try
             {
+                // Include Inventory and Product
                 var Packages = await _unitOfWork.Package.GetAllAsync();
                 return Ok(Packages);
             }
@@ -28,7 +29,7 @@ namespace Smarket.Controllers
             }
             
         }
-
+        // No need for All Inventoies and Products in Creating, and you should do include in get method
         [HttpPost("Create")]
         public async Task<IActionResult> Create(PackageDto viewModel)
         {
@@ -82,7 +83,7 @@ namespace Smarket.Controllers
             else
                 return Ok(obj);
         }
-
+        // Search for package first then update it 
         [HttpPost("Edit")]
         public async Task<IActionResult> Edit(Package obj)
         {

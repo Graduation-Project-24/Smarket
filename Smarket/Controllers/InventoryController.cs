@@ -5,6 +5,8 @@ using Smarket.Models.ViewModels;
 
 namespace Smarket.Controllers
 {
+    // Inventory Should have List of Packages, so you Should include it on methods
+
     [Route("api/[controller]")]
     [ApiController]
     public class InventoryController : ControllerBase
@@ -30,7 +32,9 @@ namespace Smarket.Controllers
             }
             
         }
-
+        
+        // This Method must have Parameter (Inventory)
+        // Then pass this parameter to AddAsync()
         [HttpPost("Create")]
         public async Task<IActionResult> Create()
         {
@@ -66,7 +70,7 @@ namespace Smarket.Controllers
             else
                 return Ok(obj);
         }
-
+        // Search for package first then update it 
         [HttpPost("Edit")]
         public async Task<IActionResult> Edit(Inventory obj)
         {

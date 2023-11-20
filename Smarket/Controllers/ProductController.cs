@@ -21,6 +21,7 @@ namespace Smarket.Controllers
         {
             try
             {
+                // Include SubCategory and Brand
                 var products = await _unitOfWork.Product.GetAllAsync();
                 return Ok(products);
             }
@@ -29,8 +30,8 @@ namespace Smarket.Controllers
                 return BadRequest(ex.Message);
             }
             
-        }        
-
+        }
+        // No need for All SubCategory and Brand in Creating, and you should do include in get method
         [HttpPost("Create")]
         public async Task<IActionResult> Create(ProductDto viewModel)
         {
@@ -71,7 +72,7 @@ namespace Smarket.Controllers
                 return Ok();
             }
         }
-
+        // You should here make include, not GetAllAsync subcategories and brands
         [HttpGet("GetoneProduct/{id}")]
         public async Task<IActionResult> GetoneProduct(int id)
         {
@@ -95,7 +96,7 @@ namespace Smarket.Controllers
                 return Ok(viewModel);
             }
         }
-
+        // you making routing with id and paramter is Product?,first search for product then update
         [HttpPost("Edit/{id}")]
         public async Task<IActionResult> Edit(Product product)
         {
@@ -109,7 +110,7 @@ namespace Smarket.Controllers
                 return NotFound();
         }
 
-
+        // to get price for product, search for package to get price from it.
         [HttpGet("Details/{productId}")]
         public async Task<IActionResult> Details(int productId)
         {
