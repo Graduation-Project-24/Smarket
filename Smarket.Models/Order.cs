@@ -9,5 +9,6 @@ namespace Smarket.Models
         public int SessionId { get; set; }
         public double TotalPrice { get; set; }
         public Status Status { get; set; }
+        public ICollection<OrderItem> Items { get; set; }
     }
 }
