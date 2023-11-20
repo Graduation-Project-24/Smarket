@@ -17,7 +17,7 @@ namespace Smarket.Models.ViewModels
         public int Rate { get; set; }
         public double? AvgRate { get; set; }
 
-        public string? Comment { get; set; }
+        public string Comment { get; set; }
         public int BrandId { get; set; }
 
         [ValidateNever]
