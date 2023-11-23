@@ -2,7 +2,8 @@
 {
     public class RegisterDto
     {
-        public string UsertName { get; set; }
+        public string UserName { get; set; }
+        public string PhoneNumber { get; set; }
         public int ImageId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
