@@ -22,7 +22,7 @@ namespace Smarket.Controllers
         {
             _userManager = userManager;
             _signInManager = signInManager;
-
+            _tokenService = tokenService;
         }
 
         [HttpGet("ExternalLogin")]
@@ -156,6 +156,7 @@ namespace Smarket.Controllers
                 UserName = registerDto.UserName,
                 Email = registerDto.Email,
                 PhoneNumber = registerDto.PhoneNumber,
+                ImageId =registerDto.ImageId,
                 EmailConfirmed = false
             };
 
@@ -265,25 +266,24 @@ namespace Smarket.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login(LoginDto loginDto)
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
-            if (user == null)
-            {
-                return Unauthorized("Invalid credentials.");
-            }
+            var user = await _userManager.Users
+                .SingleOrDefaultAsync(x => x.Email == loginDto.Email);
+
+            if (user == null) return Unauthorized("Invalid username or password");
+
             var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
-            if (!result)
+
+            if (!result) return Unauthorized("Invalid username or password");
+
+            return new UserDto
             {
-                return Unauthorized("Invalid Username or Invalid Password.");
-
-            }
-           var token = await _tokenService.CreateToken(user);
-           
-            return Ok(token);
-           
-
+                UserName = user.UserName,
+                Token = await _tokenService.CreateToken(user),
+            };
         }
+
 
 
 
