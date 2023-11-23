@@ -3,6 +3,7 @@ using Smarket.Services;
 using Smarket.Services.IServices;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddApplicationService(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 

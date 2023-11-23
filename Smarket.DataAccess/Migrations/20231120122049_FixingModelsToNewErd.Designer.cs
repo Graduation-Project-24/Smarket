@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smarket.DataAccess;
 
@@ -11,9 +12,11 @@ using Smarket.DataAccess;
 namespace Smarket.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231120122049_FixingModelsToNewErd")]
+    partial class FixingModelsToNewErd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -128,7 +131,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("Smarket.Models.CartItem", b =>
@@ -149,7 +152,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("PackageId");
 
-                    b.ToTable("CartItems", (string)null);
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("Smarket.Models.Category", b =>
@@ -170,7 +173,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("ImageId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Smarket.Models.Image", b =>
@@ -189,7 +192,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Images", (string)null);
+                    b.ToTable("Images");
                 });
 
             modelBuilder.Entity("Smarket.Models.Inventory", b =>
@@ -205,7 +208,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Inventories", (string)null);
+                    b.ToTable("Inventories");
                 });
 
             modelBuilder.Entity("Smarket.Models.Order", b =>
@@ -230,7 +233,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Smarket.Models.OrderItem", b =>
@@ -259,7 +262,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("PackageId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Smarket.Models.Package", b =>
@@ -300,7 +303,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Packages", (string)null);
+                    b.ToTable("Packages");
                 });
 
             modelBuilder.Entity("Smarket.Models.Product", b =>
@@ -344,7 +347,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("SubCategoryId1");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Smarket.Models.Role", b =>
@@ -395,7 +398,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategories", (string)null);
+                    b.ToTable("SubCategories");
                 });
 
             modelBuilder.Entity("Smarket.Models.User", b =>
@@ -512,7 +515,7 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserReviews", (string)null);
+                    b.ToTable("UserReviews");
                 });
 
             modelBuilder.Entity("Smarket.Models.UserRole", b =>

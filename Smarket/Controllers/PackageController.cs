@@ -47,8 +47,6 @@ namespace Smarket.Controllers
                     ListPrice = viewModel.ListPrice,
                     ProductId = viewModel.ProductId,
                     InventoryId = viewModel.InventoryId,
-                    CartItemId = viewModel.CartItemId,
-                    OrderItemId = viewModel.OrderItemId
                 };
 
                 await _unitOfWork.Package.AddAsync(package);
