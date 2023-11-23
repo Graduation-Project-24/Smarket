@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smarket.Models;
 using Smarket.Models.Dtos;
 using Smarket.Services;
@@ -137,6 +138,131 @@ namespace Smarket.Controllers
             // For simplicity, just redirect to returnUrl.
             return LocalRedirect(returnUrl); // Redirect to returnUrl
         }
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        {
+            if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.UserName))
+            {
+                return BadRequest("Username is taken");
+            }
+
+            if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
+            {
+                return BadRequest("Email is taken");
+            }
+
+            var user = new User
+            {
+                UserName = registerDto.UserName,
+                Email = registerDto.Email,
+                PhoneNumber = registerDto.PhoneNumber,
+                EmailConfirmed = false
+            };
+
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+            if (result.Succeeded)
+            {
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme);
+
+                await _emailService.EmailSender(user.Email, "Confirm Your Email", confirmationLink);
+
+                return new UserDto
+                {
+                    UserName = user.UserName,
+                    Token = await _tokenService.CreateToken(user),
+                };
+            }
+
+            return BadRequest("Problem registering user");
+        }
+
+
+
+
+
+
+        [HttpPost("SendConfirmationEmail")]
+        public async Task<ActionResult> SendConfirmationEmail(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            if (user.EmailConfirmed)
+            {
+                return BadRequest("Email is already confirmed.");
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email }, Request.Scheme);
+
+            await _emailService.EmailSender(email, "Email Confirmation", confirmationLink);
+
+            return Ok("Email sent");
+        }
+
+        [HttpPost("resend-confirmation-email")]
+        public async Task<IActionResult> ResendConfirmationEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest("Invalid email.");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            if (user.EmailConfirmed)
+            {
+                return BadRequest("Email is already confirmed.");
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email }, Request.Scheme);
+
+            await _emailService.EmailSender(email, "Email Confirmation", confirmationLink);
+
+            return Ok("Email confirmation link resent.");
+        }
+
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        {
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest("Invalid token or email.");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                return Ok("EmailConfirmed");
+            }
+            else
+            {
+                return BadRequest("Email confirmation failed.");
+            }
+        }
 
         [HttpPost("login")]
         public async Task<ActionResult> Login(LoginDto loginDto)
@@ -159,43 +285,7 @@ namespace Smarket.Controllers
 
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = new User
-                {
-                    UserName = registerDto.UsertName,
-                    Email = registerDto.Email,
-                    FirstName = registerDto.FirstName,
-                    LastName = registerDto.LastName,
-                    DateOfBirth = registerDto.DateOfBirth,
-                    City = registerDto.City,
-                    State = registerDto.State,
-                    ImageId = registerDto.ImageId
-       
 
-
-    };
-
-                var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-                if (result.Succeeded)
-                {
-                    // Handle successful registration
-                    return Ok("Registration successful!");
-                }
-                else
-                {
-                    // Handle errors if registration fails
-                    return BadRequest(result.Errors);
-                }
-            }
-
-            // If model state is not valid
-            return BadRequest(ModelState);
-        }
 
         [HttpPost]
         [Route("forgot")]
@@ -231,38 +321,7 @@ namespace Smarket.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPost]
-        [Route("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail(ConfirmEmailDto confirmEmailDto)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = await _userManager.FindByEmailAsync(confirmEmailDto.Email);
-
-                if (user == null)
-                {
-                    // User not found
-                    return BadRequest("User not found.");
-                }
-
-                // Confirm user's email
-                var result = await _userManager.ConfirmEmailAsync(user, confirmEmailDto.Token);
-
-                if (result.Succeeded)
-                {
-                    // Email confirmed successfully
-                    return Ok("Email confirmed successfully!");
-                }
-                else
-                {
-                    // Error confirming email
-                    return BadRequest("Error confirming email.");
-                }
-            }
-
-            // If model state is not valid
-            return BadRequest(ModelState);
-        }
+       
 
         [HttpPost]
         [Route("Logout")]
