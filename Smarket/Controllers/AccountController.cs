@@ -18,11 +18,12 @@ namespace Smarket.Controllers
         private readonly IEmailService _emailService;
 
         public AccountController(ITokenService tokenService, UserManager<User> userManager,
-            SignInManager<User> signInManager)
+            SignInManager<User> signInManager,IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
 
         [HttpGet("ExternalLogin")]
