@@ -2,16 +2,19 @@
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.ViewModels;
+using Smarket.Services.IServices;
 
 namespace Smarket.Controllers
 {
     public class PackageController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
+        //private readonly IEmailService _emailService;
 
-        public PackageController(IUnitOfWork unitOfWork)
+        public PackageController(IUnitOfWork unitOfWork /*, IEmailService emailService*/)
         {
             _unitOfWork = unitOfWork;
+            //_emailService = emailService;
         }
 
         [HttpGet("Get")]
@@ -20,6 +23,8 @@ namespace Smarket.Controllers
             try
             {
                 // Include Inventory and Product
+                //_emailService.EmailSender("maimallam57@gmail.com", "Thank you for your order! - Smarket", $"<div> <h2><strong>Dear, Mai</strong></h2> <h3>Test Email Service </h3> </div>");
+
                 var Packages = await _unitOfWork.Package.GetAllAsync(includeProperties: p => new string[] {"Product", "Inventory"});
                 return Ok(Packages);
             }
