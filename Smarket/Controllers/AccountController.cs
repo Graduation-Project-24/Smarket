@@ -18,7 +18,7 @@ namespace Smarket.Controllers
         private readonly IEmailService _emailService;
 
         public AccountController(ITokenService tokenService, UserManager<User> userManager,
-            SignInManager<User> signInManager,IEmailService emailService)
+            SignInManager<User> signInManager, IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -157,7 +157,7 @@ namespace Smarket.Controllers
                 UserName = registerDto.UserName,
                 Email = registerDto.Email,
                 PhoneNumber = registerDto.PhoneNumber,
-                ImageId =registerDto.ImageId,
+                ImageId = registerDto.ImageId,
                 EmailConfirmed = false
             };
 
@@ -286,43 +286,50 @@ namespace Smarket.Controllers
         }
 
 
-
-
-        [HttpPost]
-        [Route("forgot")]
+       
+        [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
         {
-            if (ModelState.IsValid)
+            var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+    
+            if (user == null)
             {
-                var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+                return BadRequest("User not found.");
+            }
 
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-                {
-                    // Don't reveal that the user does not exist or is not confirmed
-                    return Ok("If the provided email exists in our system, a password reset link has been sent.");
-                }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action(nameof(ResetPassword), "Account", new { token, email = forgotPasswordDto.Email }, Request.Scheme);
 
-                // Generate password reset token
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            // Send the reset password link to the user's email
+            await _emailService.EmailSender(forgotPasswordDto.Email, "Reset Your Password", resetLink);
 
-                // Create the password reset link
-                var resetLink = Url.Action("ResetPassword", "ResetPassword", new { token, email = forgotPasswordDto.Email }, Request.Scheme);
-
-                // Compose the email message
-                var emailSubject = "Reset Your Password";
-                var emailBody = $"Please click the following link to reset your password: {resetLink}";
-
-                // Send password reset email
-                await _emailService.EmailSender(forgotPasswordDto.Email, emailSubject, emailBody);
-
-                return Ok("If the provided email exists in our system, a password reset link has been sent.");
-            }            
-
-            // If model state is not valid
-            return BadRequest(ModelState);
+            return Ok("Reset password link sent to your email.");
         }
 
-       
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(string Email ,string Token)
+        {
+            var user = await _userManager.FindByEmailAsync(Email);
+
+            if (user == null)
+            {
+                return BadRequest("User not found.");
+            }
+            var NewPassword = "123456a";
+            var result = await _userManager.ResetPasswordAsync(user,Token,NewPassword);
+
+            if (result.Succeeded)
+            {
+                return Ok("Password reset successful.");
+            }
+            else
+            {
+                return BadRequest("Password reset failed.");
+            }
+        }
+
+
+
 
         [HttpPost]
         [Route("Logout")]
