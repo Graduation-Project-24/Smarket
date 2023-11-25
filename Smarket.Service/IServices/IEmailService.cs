@@ -5,6 +5,6 @@ namespace Smarket.Services.IServices
 {
     public interface IEmailService
     {
-        Task EmailSender(string email, string subject, string htmlMessage);
+        public Task EmailSender(string email, string subject, string htmlMessage);
     }
 }
