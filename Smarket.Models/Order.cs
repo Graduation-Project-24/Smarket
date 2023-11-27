@@ -10,5 +10,7 @@ namespace Smarket.Models
         public double TotalPrice { get; set; }
         public Status Status { get; set; }
         public ICollection<OrderItem> Items { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }

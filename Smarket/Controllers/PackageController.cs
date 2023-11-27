@@ -25,7 +25,7 @@ namespace Smarket.Controllers
                 // Include Inventory and Product
                 //_emailService.EmailSender("maimallam57@gmail.com", "Thank you for your order! - Smarket", $"<div> <h2><strong>Dear, Mai</strong></h2> <h3>Test Email Service </h3> </div>");
 
-                var Packages = await _unitOfWork.Package.GetAllAsync(includeProperties: p => new string[] {"Product", "Inventory"});
+                var Packages = await _unitOfWork.Package.GetAllAsync(null, p => p.Product, i=>i.Inventory);
                 return Ok(Packages);
             }
             catch (Exception ex)
