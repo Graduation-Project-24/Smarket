@@ -328,7 +328,47 @@ namespace Smarket.Controllers
             }
         }
 
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
 
+                if (user is null)
+                    return BadRequest("Email Not Found");
+
+                var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    return Ok();
+                }
+                return BadRequest(result.Errors);
+            }
+            return BadRequest(model);
+        }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeleteAccount(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return BadRequest(result.Errors);
+            }
+        }
 
 
         [HttpPost]
