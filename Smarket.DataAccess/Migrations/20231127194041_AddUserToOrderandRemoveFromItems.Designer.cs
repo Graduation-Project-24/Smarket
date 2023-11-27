@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smarket.DataAccess;
 
@@ -11,9 +12,11 @@ using Smarket.DataAccess;
 namespace Smarket.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231127194041_AddUserToOrderandRemoveFromItems")]
+    partial class AddUserToOrderandRemoveFromItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,14 +148,9 @@ namespace Smarket.DataAccess.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PackageId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("CartItems");
                 });
@@ -254,7 +252,7 @@ namespace Smarket.DataAccess.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PackageId")
+                    b.Property<int?>("PackageId")
                         .HasColumnType("int");
 
                     b.Property<double>("Price")
@@ -595,15 +593,7 @@ namespace Smarket.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Smarket.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Package");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Smarket.Models.Category", b =>
@@ -636,15 +626,11 @@ namespace Smarket.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Smarket.Models.Package", "Package")
+                    b.HasOne("Smarket.Models.Package", null)
                         .WithMany("Items")
-                        .HasForeignKey("PackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PackageId");
 
                     b.Navigation("Order");
-
-                    b.Navigation("Package");
                 });
 
             modelBuilder.Entity("Smarket.Models.Package", b =>
