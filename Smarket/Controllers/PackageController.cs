@@ -2,7 +2,7 @@
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.ViewModels;
-using Smarket.Services.IServices;
+
 
 namespace Smarket.Controllers
 {
@@ -25,14 +25,14 @@ namespace Smarket.Controllers
                 // Include Inventory and Product
                 //_emailService.EmailSender("maimallam57@gmail.com", "Thank you for your order! - Smarket", $"<div> <h2><strong>Dear, Mai</strong></h2> <h3>Test Email Service </h3> </div>");
 
-                var Packages = await _unitOfWork.Package.GetAllAsync(null, p => p.Product, i=>i.Inventory);
+                var Packages = await _unitOfWork.Package.GetAllAsync();
                 return Ok(Packages);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
         // No need for All Inventoies and Products in Creating, and you should do include in get method
         [HttpPost("Create")]
@@ -63,7 +63,7 @@ namespace Smarket.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Product", "Inventory" });
+            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, p => p.Product, p => p.Inventory);
             if (obj == null)
                 return NotFound();
             else
@@ -77,27 +77,29 @@ namespace Smarket.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Product", "Inventory" });
+            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
                 return NotFound();
             else
                 return Ok(obj);
         }
         // Search for package first then update it 
-        [HttpPost("Edit")]
-        public async Task<IActionResult> Edit(Package obj)
+        [HttpPost("Edit/{id}")]
+        public async Task<IActionResult> Edit(int id, PackageDto obj)
         {
-            var package = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == obj.Id, includeProperties: p => new string[] { "Product", "Inventory" });
+            var package = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
+            package.Date = obj.Date;
+            package.ExpireDate = obj.ExpireDate;
+            package.Stock = obj.Stock;
+            package.Price = obj.Price;
+            package.ListPrice = obj.ListPrice;
+            package.ProductId = obj.ProductId;
+            package.InventoryId = obj.InventoryId;
 
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Package.Update(obj);
-                await _unitOfWork.Save();
-                return Ok(obj);
-            }
-            else
-                return NotFound();
-            
+            _unitOfWork.Package.Update(package);
+            await _unitOfWork.Save();
+            return Ok(obj);
+
         }
 
     }
