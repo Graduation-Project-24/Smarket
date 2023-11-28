@@ -22,7 +22,7 @@ namespace Smarket.Controllers
         {
             try
             {
-                var Inventories = await _unitOfWork.Inventory.GetAllAsync(includeProperties: p => new string[] { "Package" });
+                var Inventories = await _unitOfWork.Inventory.GetAllAsync(null, p => p.Packages);
                 return Ok(Inventories);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace Smarket.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var obj = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Package" });
+            var obj = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == id, p => p.Packages);
             if (obj == null)
                 return NotFound();
             else
@@ -63,7 +63,7 @@ namespace Smarket.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var obj = await _unitOfWork.Category.FirstOrDefaultAsync(u => u.Id == id, includeProperties: p => new string[] { "Package" });
+            var obj = await _unitOfWork.Category.FirstOrDefaultAsync(u => u.Id == id, p => p.SubCategories);
             if (obj == null)
                 return NotFound();
             else
@@ -74,7 +74,7 @@ namespace Smarket.Controllers
         [HttpPost("Edit")]
         public async Task<IActionResult> Edit(Inventory obj)
         {
-            var inventory = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == obj.Id, includeProperties: p => new string[] { "Package" });
+            var inventory = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == obj.Id, p => p.Packages);
             
             if (ModelState.IsValid)
             {
