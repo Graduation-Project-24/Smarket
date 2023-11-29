@@ -8,6 +8,7 @@ using Smarket.Models.DTOs;
 using Smarket.Services.IServices;
 using Stripe.Checkout;
 using Stripe;
+using System.Security.Policy;
 
 namespace Smarket.Controllers
 {
@@ -60,12 +61,12 @@ namespace Smarket.Controllers
                 return BadRequest(new { State = ModelState, AddToCartDto = addToCartDto });
             }
 
-            var user = await _userManager.GetUserAsync(User);
+/*            var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
                 return NotFound("User not found");
-            }
+            }*/
             var package = await _unitOfWork.Package.FirstOrDefaultAsync(c => c.Id == addToCartDto.PackageId);
             if (package == null)
             {
@@ -76,7 +77,7 @@ namespace Smarket.Controllers
             {
                 Quantity = addToCartDto.Quantity,
                 PackageId = addToCartDto.PackageId,
-                UserId = user.Id,
+                UserId = addToCartDto.UserId,
             };
 
             await _unitOfWork.CartItem.AddAsync(cartItem);
@@ -117,61 +118,68 @@ namespace Smarket.Controllers
 
         [HttpPost]
         [Route("Checkout")]
-        public async Task<IActionResult> Checkout([FromBody] List<OrderItemDto> orderItems)
+        public async Task<IActionResult> Checkout()
         {
             try
             {
-                if (!ModelState.IsValid || orderItems == null)
+                var cartItems = await _unitOfWork.CartItem.GetAllAsync();
+                if (!ModelState.IsValid || cartItems == null)
                 {
-                    return BadRequest(new { State = ModelState, OrderItems = orderItems });
+                    return BadRequest(new { State = ModelState, CartItems = cartItems });
                 }
 
-                var user = await _userManager.GetUserAsync(User);
+/*                var user = await _userManager.GetUserAsync(User);
 
                 if (user == null)
                 {
                     return NotFound("User not found");
-                }
+                }*/
 
-                var orderItemEntities = _mapper.Map<IEnumerable<OrderItem>>(orderItems).ToList();
+                var orderItemDtos = cartItems.Select(cartItem => new OrderItem
+                {
+                    PackageId = cartItem.PackageId,
+                    Quantity = cartItem.Quantity,
+                }).ToList();
+
 
                 var order = new Order
                 {
                     Date = DateTime.Now,
-                    TotalPrice = orderItemEntities.Sum(oi => oi.Price * oi.Quantity),
-                    UserId = user.Id
+                    TotalPrice = orderItemDtos.Sum(oi => oi.Price * oi.Quantity),
+                    UserId = 20
                 };
 
                 await _unitOfWork.Order.AddAsync(order);
                 await _unitOfWork.Save();
 
-                foreach (var orderItem in orderItemEntities)
+                foreach (var orderItem in orderItemDtos)
                 {
                     orderItem.OrderId = order.Id;
                 }
 
-                await _unitOfWork.OrderItem.AddRangeAsync(orderItemEntities);
+                await _unitOfWork.OrderItem.AddRangeAsync(orderItemDtos);
                 await _unitOfWork.Save();
 
-                var userCartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == user.Id);
+                var orderItemsList= await _unitOfWork.OrderItem.GetAllAsync(i=>i.OrderId==order.Id,i=>i.Package.Product);
+                var userCartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == 20);
 
                 _unitOfWork.CartItem.DeleteRange(userCartItems);
                 await _unitOfWork.Save();
 
                 // Create a Stripe session
-                var domain = "http://127.0.0.1:5500/test.html";
+                var domain = "http://127.0.0.1:5500/hello.html";
                 var options = new SessionCreateOptions
                 {
                     PaymentMethodTypes = new List<string> { "card" },
-                    LineItems = orderItemEntities.Select(oi => new SessionLineItemOptions
+                    LineItems = orderItemsList.Select(oi => new SessionLineItemOptions
                     {
                         PriceData = new SessionLineItemPriceDataOptions
                         {
-                            UnitAmount = (long)(oi.Price * 100),
+                            UnitAmount = (long)(oi.Package.Price * 100),
                             Currency = "usd",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name = oi.Package.Product.Name,
+                                Name =oi.Package.Product.Name ,
                                 Description = oi.Package.Product.Description,
                             },
                         },
@@ -193,5 +201,6 @@ namespace Smarket.Controllers
                 return StatusCode(500, new { Message = "An error occurred during checkout." });
             }
         }
+
     }
 }
