@@ -9,6 +9,7 @@ using Smarket.Services.IServices;
 using Stripe.Checkout;
 using Stripe;
 using System.Security.Policy;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Smarket.Controllers
 {
@@ -52,6 +53,15 @@ namespace Smarket.Controllers
 
             return Ok(user);
         }
+        [HttpGet]
+        [Route("GetShoppingCartbyUser")]
+        public async Task<IActionResult> GetShoppingCartbyUser(int id)
+        {
+            var user = await _unitOfWork.CartItem.GetAllAsync(x => x.UserId == id);
+
+            return Ok(user);
+        }
+
         [HttpPost]
         [Route("AddToCart")]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartDto addToCartDto)
@@ -116,6 +126,8 @@ namespace Smarket.Controllers
             }
         }
 
+
+
         [HttpPost]
         [Route("Checkout")]
         public async Task<IActionResult> Checkout()
@@ -128,12 +140,12 @@ namespace Smarket.Controllers
                     return BadRequest(new { State = ModelState, CartItems = cartItems });
                 }
 
-/*                var user = await _userManager.GetUserAsync(User);
+                var user = await _userManager.GetUserAsync(User);
 
                 if (user == null)
                 {
                     return NotFound("User not found");
-                }*/
+                }
 
                 var orderItemDtos = cartItems.Select(cartItem => new OrderItem
                 {
