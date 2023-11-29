@@ -157,7 +157,6 @@ namespace Smarket.Controllers
                 UserName = registerDto.UserName,
                 Email = registerDto.Email,
                 PhoneNumber = registerDto.PhoneNumber,
-                ImageId = registerDto.ImageId,
                 EmailConfirmed = false
             };
 

@@ -4,6 +4,6 @@
     {
         public string Name { get; set; }
         public int CategoryId { get; set; }
-        public IEnumerable<SubCategory> SubCategories { get; set; }
+
     }
 }
