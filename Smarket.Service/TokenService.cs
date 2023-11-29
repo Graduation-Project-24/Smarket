@@ -46,5 +46,6 @@ namespace Smarket.Services
 
             return tokenHandler.WriteToken(token);
         }
+
     }
 }

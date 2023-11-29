@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Smarket.Models;
+using Smarket.Models.DTOs;
+
 
 
 namespace Smarket.Profiles
@@ -7,7 +10,7 @@ namespace Smarket.Profiles
     {
         public AutoMapperProfiles()
         {
-
+            CreateMap<OrderItem, OrderItemDto>().ReverseMap();
         }
     }
 }
