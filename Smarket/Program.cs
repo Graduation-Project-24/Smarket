@@ -5,7 +5,7 @@ using Smarket.Services;
 using Smarket.Services.IServices;
 using Smarket.Settings;
 using Stripe;
-using Microsoft.IdentityModel.Tokens;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +18,7 @@ builder.Services.AddControllers();
 // Swagger configuration
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API Name", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SMARKET EZEz", Version = "v1" });
 
     // Configure Swagger to use the JWT bearer token
     var securityScheme = new OpenApiSecurityScheme
@@ -50,6 +50,12 @@ builder.Services.AddTransient<ITokenService, Smarket.Services.TokenService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 
 var app = builder.Build();
+
+app.UseCors(x => x.AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .SetIsOriginAllowed(origin => true) // allow any origin
+                  .AllowCredentials()); // allow credentials
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
