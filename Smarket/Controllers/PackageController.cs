@@ -9,21 +9,17 @@ namespace Smarket.Controllers
     public class PackageController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
-        //private readonly IEmailService _emailService;
 
-        public PackageController(IUnitOfWork unitOfWork /*, IEmailService emailService*/)
+        public PackageController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            //_emailService = emailService;
         }
 
         [HttpGet("Get")]
         public async Task<IActionResult> Get()
         {
             try
-            {
-                // Include Inventory and Product
-                //_emailService.EmailSender("maimallam57@gmail.com", "Thank you for your order! - Smarket", $"<div> <h2><strong>Dear, Mai</strong></h2> <h3>Test Email Service </h3> </div>");
+
                 var Packages = await _unitOfWork.Package.GetAllAsync();
                 return Ok(Packages);
             }
@@ -86,7 +82,7 @@ namespace Smarket.Controllers
         [HttpPost("Edit/{id}")]
         public async Task<IActionResult> Edit(int id, PackageDto obj)
         {
-            var package = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
+            var package = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, p => p.Product, p => p.Inventory);
             package.Date = obj.Date;
             package.ExpireDate = obj.ExpireDate;
             package.Stock = obj.Stock;

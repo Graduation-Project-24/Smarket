@@ -6,7 +6,6 @@ namespace Smarket.Models.ViewModels
 {
     public class ProductDto
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
 
@@ -20,26 +19,10 @@ namespace Smarket.Models.ViewModels
         public string Comment { get; set; }
         public int BrandId { get; set; }
 
-        [ValidateNever]
-        public Brand Brand { get; set; }
-
         public int SubCategoryId { get; set; }
 
-        [ValidateNever]
-        public SubCategory SubCategory { get; set; }
         public int ImageId { get; set; }
 
-        [ValidateNever]
-        public Image Image { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<Brand> Brands { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<SubCategory> SubCategories { get; set; }
-
-        [ValidateNever]
-        public IEnumerable<UserReview> UserReviews { get; set; }
 
     }
 }
