@@ -19,6 +19,7 @@ namespace Smarket.Controllers
         public async Task<IActionResult> Get()
         {
             try
+            { 
 
                 var Packages = await _unitOfWork.Package.GetAllAsync();
                 return Ok(Packages);
