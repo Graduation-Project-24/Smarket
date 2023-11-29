@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Smarket.DataAccess;
@@ -18,23 +19,24 @@ namespace Smarket.Extentions
                 opt.Lockout.MaxFailedAccessAttempts = 5;
                 opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             })
-                .AddRoles<Role>()
-                .AddRoleManager<RoleManager<Role>>()
-                .AddSignInManager<SignInManager<User>>()
-                .AddRoleValidator<RoleValidator<Role>>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddRoles<Role>()
+            .AddRoleManager<RoleManager<Role>>()
+            .AddSignInManager<SignInManager<User>>()
+            .AddRoleValidator<RoleValidator<Role>>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
 
             services.AddAuthentication(options =>
             {
-                options.DefaultScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
             })
-            .AddCookie("Identity.Application")
-            .AddCookie("Identity.TwoFactorRememberMe")
-            .AddCookie("Identity.TwoFactorUserId")
+                            .AddCookie("Identity.Application")
+                            .AddCookie("Identity.TwoFactorRememberMe")
+                            .AddCookie("Identity.TwoFactorUserId")
 
 
                 .AddJwtBearer(options =>
