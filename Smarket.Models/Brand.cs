@@ -7,5 +7,7 @@
         public int ImageId { get; set; }
         public Image Image { get; set; }
         public ICollection<Product> Products { get; set; }
+
+
     }
 }
