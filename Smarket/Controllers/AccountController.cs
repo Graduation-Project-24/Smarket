@@ -155,8 +155,13 @@ namespace Smarket.Controllers
             var user = new User
             {
                 UserName = registerDto.UserName,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                DateOfBirth = registerDto.DateOfBirth,
                 Email = registerDto.Email,
                 PhoneNumber = registerDto.PhoneNumber,
+                City = registerDto.City,
+                State = registerDto.State,
                 EmailConfirmed = false
             };
 
