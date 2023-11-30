@@ -25,6 +25,79 @@ namespace Smarket.Controllers
             _tokenService = tokenService;
             _emailService = emailService;
         }
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        {
+            if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.UserName))
+            {
+                return BadRequest("Username is taken");
+            }
+
+            if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
+            {
+                return BadRequest("Email is taken");
+            }
+
+            var user = new User
+            {
+                UserName = registerDto.UserName,
+                FirstName = registerDto.FirstName,
+                LastName = registerDto.LastName,
+                DateOfBirth = registerDto.DateOfBirth,
+                Email = registerDto.Email,
+                PhoneNumber = registerDto.PhoneNumber,
+                City = registerDto.City,
+                State = registerDto.State,
+                EmailConfirmed = false
+            };
+
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+            if (result.Succeeded)
+            {
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme);
+
+                await _emailService.EmailSender(user.Email, "Confirm Your Email", confirmationLink);
+
+                return new UserDto
+                {
+                    UserName = user.UserName,
+                    Token = await _tokenService.CreateToken(user),
+                };
+            }
+
+            return BadRequest("Problem registering user");
+        }
+
+
+        [HttpPost("login")]
+        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+        {
+            var user = await _userManager.Users
+                .SingleOrDefaultAsync(x => x.Email == loginDto.Email);
+
+            if (user == null) return Unauthorized("Invalid username or password");
+
+            var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+
+            if (!result) return Unauthorized("Invalid username or password");
+
+            return new UserDto
+            {
+                UserName = user.UserName,
+                Token = await _tokenService.CreateToken(user),
+            };
+        }
+
+
+
+
+
+
+
+
 
         [HttpGet("ExternalLogin")]
 
@@ -139,55 +212,6 @@ namespace Smarket.Controllers
             // For simplicity, just redirect to returnUrl.
             return LocalRedirect(returnUrl); // Redirect to returnUrl
         }
-        [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
-        {
-            if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.UserName))
-            {
-                return BadRequest("Username is taken");
-            }
-
-            if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
-            {
-                return BadRequest("Email is taken");
-            }
-
-            var user = new User
-            {
-                UserName = registerDto.UserName,
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                DateOfBirth = registerDto.DateOfBirth,
-                Email = registerDto.Email,
-                PhoneNumber = registerDto.PhoneNumber,
-                City = registerDto.City,
-                State = registerDto.State,
-                EmailConfirmed = false
-            };
-
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-            if (result.Succeeded)
-            {
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme);
-
-                await _emailService.EmailSender(user.Email, "Confirm Your Email", confirmationLink);
-
-                return new UserDto
-                {
-                    UserName = user.UserName,
-                    Token = await _tokenService.CreateToken(user),
-                };
-            }
-
-            return BadRequest("Problem registering user");
-        }
-
-
-
-
 
 
         [HttpPost("SendConfirmationEmail")]
@@ -270,24 +294,7 @@ namespace Smarket.Controllers
             }
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
-        {
-            var user = await _userManager.Users
-                .SingleOrDefaultAsync(x => x.Email == loginDto.Email);
 
-            if (user == null) return Unauthorized("Invalid username or password");
-
-            var result = await _userManager.CheckPasswordAsync(user, loginDto.Password);
-
-            if (!result) return Unauthorized("Invalid username or password");
-
-            return new UserDto
-            {
-                UserName = user.UserName,
-                Token = await _tokenService.CreateToken(user),
-            };
-        }
 
 
        
