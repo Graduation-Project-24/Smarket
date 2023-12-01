@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/*using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.ViewModels;
@@ -138,3 +138,4 @@ namespace Smarket.Controllers
         
     }
 }
+*/
