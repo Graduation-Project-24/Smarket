@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿/*using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.DTOs;
@@ -73,4 +73,4 @@ namespace Smarket.Controllers
             return RedirectToAction("There is an Error while Deleting");
         }
 	}
-}
+}*/

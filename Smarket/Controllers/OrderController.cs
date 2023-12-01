@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿/*using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -71,12 +71,12 @@ namespace Smarket.Controllers
                 return BadRequest(new { State = ModelState, AddToCartDto = addToCartDto });
             }
 
-/*            var user = await _userManager.GetUserAsync(User);
+*//*            var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
                 return NotFound("User not found");
-            }*/
+            }*//*
             var package = await _unitOfWork.Package.FirstOrDefaultAsync(c => c.Id == addToCartDto.PackageId);
             if (package == null)
             {
@@ -216,3 +216,4 @@ namespace Smarket.Controllers
 
     }
 }
+*/

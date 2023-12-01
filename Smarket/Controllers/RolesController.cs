@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿/*using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smarket.Models.DTOs;
@@ -24,7 +24,7 @@ namespace Smarket.Controllers
             return Ok(roles);
         }
 
-        /* [HttpPost]
+        *//* [HttpPost]
          [Route("Seed")]
          public async Task<IActionResult> SeedRoles()
          {
@@ -35,7 +35,7 @@ namespace Smarket.Controllers
                  return Ok();
              }
              return NoContent();
-         }*/
+         }*//*
 
         [HttpPost]
         public async Task<IActionResult> Add(RoleFormDto model)
@@ -54,4 +54,4 @@ namespace Smarket.Controllers
             return Ok();
         }
     }
-}
+}*/

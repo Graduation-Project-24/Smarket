@@ -99,7 +99,7 @@ namespace Smarket.Controllers
 
 
 
-        [HttpGet("ExternalLogin")]
+       /* [HttpGet("ExternalLogin")]
 
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
 
@@ -121,8 +121,8 @@ namespace Smarket.Controllers
 
 
         }
-
-        [HttpGet("signin-google")]
+*/
+       /* [HttpGet("signin-google")]
 
         public async Task<IActionResult> ExternalLoginCallbackGoogle(string returnUrl = null, string remoteError = null)
         {
@@ -212,7 +212,7 @@ namespace Smarket.Controllers
             // For simplicity, just redirect to returnUrl.
             return LocalRedirect(returnUrl); // Redirect to returnUrl
         }
-
+*/
 
         [HttpPost("SendConfirmationEmail")]
         public async Task<ActionResult> SendConfirmationEmail(string email)
@@ -295,7 +295,7 @@ namespace Smarket.Controllers
         }
 
 
-
+/*
 
        
         [HttpPost("forgot-password")]
@@ -380,7 +380,7 @@ namespace Smarket.Controllers
                 return BadRequest(result.Errors);
             }
         }
-
+*/
 
         [HttpPost]
         [Route("Logout")]
