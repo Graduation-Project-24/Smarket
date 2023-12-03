@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using Smarket.Extentions;
-using Smarket.Services;
-using Smarket.Services.IServices;
-using Smarket.Settings;
 using Stripe;
 
 
@@ -44,10 +41,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
-builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
-builder.Services.AddTransient<ITokenService, Smarket.Services.TokenService>();
-builder.Services.AddSingleton<IEmailService, EmailService>();
+
 
 var app = builder.Build();
 
@@ -57,15 +51,10 @@ app.UseCors(x => x.AllowAnyMethod()
                   .AllowCredentials()); // allow credentials
 
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API Name v1");
-    });
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
