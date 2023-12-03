@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.23.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="7.0.13" />
@@ -15,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Smarket.DataAccess\Smarket.DataAccess.csproj" />
     <ProjectReference Include="..\Smarket.Models\Smarket.Models.csproj" />
   </ItemGroup>
 
