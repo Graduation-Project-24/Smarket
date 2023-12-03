@@ -65,6 +65,7 @@ namespace Smarket.Controllers
 
         [HttpPost]
         [Route("AddToCart")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartDto addToCartDto)
         {
             if (!ModelState.IsValid || addToCartDto == null)
@@ -99,6 +100,7 @@ namespace Smarket.Controllers
 
         [HttpPost]
         [Route("RemoveFromCart")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> RemoveFromCart(int packageId)
         {
             try
