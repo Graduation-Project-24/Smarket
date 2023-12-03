@@ -1,4 +1,4 @@
-﻿/*using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.DTOs;
@@ -6,14 +6,14 @@ using Smarket.Models.DTOs;
 namespace Smarket.Controllers
 {
 
-	public class SubSubCategoryController : BaseApiController
-	{
-		private readonly IUnitOfWork _unitOfWork;
+    public class SubSubCategoryController : BaseApiController
+    {
+        private readonly IUnitOfWork _unitOfWork;
 
-		public SubSubCategoryController(IUnitOfWork unitOfWork)
-		{
-			_unitOfWork = unitOfWork;
-		}
+        public SubSubCategoryController(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -23,7 +23,7 @@ namespace Smarket.Controllers
         [HttpGet("GetAllByCategory")]
         public async Task<IActionResult> GetAllByCategory(int categoryId)
         {
-            var categories = await _unitOfWork.SubCategory.GetAllAsync(c=>c.CategoryId==categoryId);
+            var categories = await _unitOfWork.SubCategory.GetAllAsync(c => c.CategoryId == categoryId);
             return Ok(categories);
         }
         [HttpGet("Details")]
@@ -79,4 +79,4 @@ namespace Smarket.Controllers
             return RedirectToAction("There is an Error while Deleting");
         }
     }
-}*/
+}

@@ -1,4 +1,4 @@
-﻿/*using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.ViewModels;
@@ -30,9 +30,9 @@ namespace Smarket.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
-        
+
         // This Method must have Parameter (Inventory)
         // Then pass this parameter to AddAsync()
         [HttpPost("Create")]
@@ -93,4 +93,3 @@ namespace Smarket.Controllers
 
     }
 }
-*/

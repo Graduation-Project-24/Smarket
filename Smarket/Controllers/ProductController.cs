@@ -1,4 +1,4 @@
-﻿/*using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.ViewModels;
@@ -29,7 +29,7 @@ namespace Smarket.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
+
         }
         // No need for All SubCategory and Brand in Creating, and you should do include in get method
         [HttpPost("Create")]
@@ -134,8 +134,7 @@ namespace Smarket.Controllers
         {
             var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.BrandId == brandId);
             return Ok(products);
-        }        
-        
+        }
+
     }
 }
-*/

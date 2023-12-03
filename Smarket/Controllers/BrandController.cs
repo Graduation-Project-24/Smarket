@@ -1,4 +1,4 @@
-﻿/*using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.DTOs;
@@ -17,13 +17,13 @@ namespace Smarket.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetAll()
 		{
-			var brands =await _unitOfWork.Brand.GetAllAsync();
+			var brands = await _unitOfWork.Brand.GetAllAsync();
 			return Ok(brands);
 		}
 		[HttpGet("Details")]
 		public async Task<IActionResult> Details(int id)
 		{
-			var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(b=>b.Id == id);
+			var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(b => b.Id == id);
 			return Ok(brand);
 		}
 
@@ -34,7 +34,7 @@ namespace Smarket.Controllers
 			{
 				Name = dto.Name,
 				ImageId = dto.ImageId,
-				
+
 			};
 			if (ModelState.IsValid)
 			{
@@ -46,31 +46,31 @@ namespace Smarket.Controllers
 		}
 
 		[HttpPost("Edit")]
-		public async Task<IActionResult> Edit(int id,BrandDto dto)
+		public async Task<IActionResult> Edit(int id, BrandDto dto)
 		{
-            if (ModelState.IsValid)
-            {
-				var oldbrand= await _unitOfWork.Brand.FirstOrDefaultAsync(x => x.Id == id);
+			if (ModelState.IsValid)
+			{
+				var oldbrand = await _unitOfWork.Brand.FirstOrDefaultAsync(x => x.Id == id);
 				oldbrand.Name = dto.Name;
 				oldbrand.ImageId = dto.ImageId;
 				_unitOfWork.Brand.Update(oldbrand);
 				await _unitOfWork.Save();
 				return Ok(oldbrand);
 			}
-            return RedirectToAction("There is an Error while Deleting");
-        }
+			return RedirectToAction("There is an Error while Deleting");
+		}
 
-        [HttpPost("Delete")]
-        public async Task<IActionResult> Delete(int id)
+		[HttpPost("Delete")]
+		public async Task<IActionResult> Delete(int id)
 		{
 			if (ModelState.IsValid)
-            {
-                var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(x => x.Id == id);
-                _unitOfWork.Brand.Delete(brand);
+			{
+				var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(x => x.Id == id);
+				_unitOfWork.Brand.Delete(brand);
 				await _unitOfWork.Save();
 				return Ok("Brand Has Deleted");
 			}
-            return RedirectToAction("There is an Error while Deleting");
-        }
+			return RedirectToAction("There is an Error while Deleting");
+		}
 	}
-}*/
+}

@@ -99,7 +99,7 @@ namespace Smarket.Controllers
 
 
 
-       /* [HttpGet("ExternalLogin")]
+        [HttpGet("ExternalLogin")]
 
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
 
@@ -121,8 +121,8 @@ namespace Smarket.Controllers
 
 
         }
-*/
-       /* [HttpGet("signin-google")]
+
+        [HttpGet("signin-google")]
 
         public async Task<IActionResult> ExternalLoginCallbackGoogle(string returnUrl = null, string remoteError = null)
         {
@@ -212,7 +212,7 @@ namespace Smarket.Controllers
             // For simplicity, just redirect to returnUrl.
             return LocalRedirect(returnUrl); // Redirect to returnUrl
         }
-*/
+
 
         [HttpPost("SendConfirmationEmail")]
         public async Task<ActionResult> SendConfirmationEmail(string email)
@@ -295,14 +295,14 @@ namespace Smarket.Controllers
         }
 
 
-/*
 
-       
+
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
         {
             var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
-    
+
             if (user == null)
             {
                 return BadRequest("User not found.");
@@ -318,7 +318,7 @@ namespace Smarket.Controllers
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(string Email ,string Token)
+        public async Task<IActionResult> ResetPassword(string Email, string Token)
         {
             var user = await _userManager.FindByEmailAsync(Email);
 
@@ -327,7 +327,7 @@ namespace Smarket.Controllers
                 return BadRequest("User not found.");
             }
             var NewPassword = "123456a";
-            var result = await _userManager.ResetPasswordAsync(user,Token,NewPassword);
+            var result = await _userManager.ResetPasswordAsync(user, Token, NewPassword);
 
             if (result.Succeeded)
             {
@@ -380,7 +380,7 @@ namespace Smarket.Controllers
                 return BadRequest(result.Errors);
             }
         }
-*/
+
 
         [HttpPost]
         [Route("Logout")]

@@ -1,4 +1,4 @@
-﻿/*using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smarket.Models.DTOs;
@@ -7,8 +7,8 @@ using Smarket.Models.DTOs;
 namespace Smarket.Controllers
 {
 
-	public class RolesController : BaseApiController
-	{
+    public class RolesController : BaseApiController
+    {
 
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -24,18 +24,18 @@ namespace Smarket.Controllers
             return Ok(roles);
         }
 
-        *//* [HttpPost]
-         [Route("Seed")]
-         public async Task<IActionResult> SeedRoles()
-         {
-             if (!_context.Roles.Any())
-             {
-                 await _roleManager.CreateAsync(new IdentityRole("Admin"));
-                 await _roleManager.CreateAsync(new IdentityRole("User"));
-                 return Ok();
-             }
-             return NoContent();
-         }*//*
+        [HttpPost]
+        [Route("Seed")]
+        public async Task<IActionResult> SeedRoles()
+        {
+            if (!_roleManager.Roles.Any())
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                await _roleManager.CreateAsync(new IdentityRole("User"));
+                return Ok();
+            }
+            return NoContent();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Add(RoleFormDto model)
@@ -54,4 +54,4 @@ namespace Smarket.Controllers
             return Ok();
         }
     }
-}*/
+}
