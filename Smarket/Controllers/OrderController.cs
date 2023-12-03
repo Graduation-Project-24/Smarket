@@ -1,4 +1,4 @@
-﻿/*using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +10,7 @@ using Stripe.Checkout;
 using Stripe;
 using System.Security.Policy;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Smarket.Controllers
 {
@@ -71,12 +72,12 @@ namespace Smarket.Controllers
                 return BadRequest(new { State = ModelState, AddToCartDto = addToCartDto });
             }
 
-*//*            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
                 return NotFound("User not found");
-            }*//*
+            }
             var package = await _unitOfWork.Package.FirstOrDefaultAsync(c => c.Id == addToCartDto.PackageId);
             if (package == null)
             {
@@ -130,6 +131,7 @@ namespace Smarket.Controllers
 
         [HttpPost]
         [Route("Checkout")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Checkout()
         {
             try
@@ -158,7 +160,7 @@ namespace Smarket.Controllers
                 {
                     Date = DateTime.Now,
                     TotalPrice = orderItemDtos.Sum(oi => oi.Price * oi.Quantity),
-                    UserId = 20
+                    UserId = user.Id
                 };
 
                 await _unitOfWork.Order.AddAsync(order);
@@ -172,11 +174,19 @@ namespace Smarket.Controllers
                 await _unitOfWork.OrderItem.AddRangeAsync(orderItemDtos);
                 await _unitOfWork.Save();
 
-                var orderItemsList= await _unitOfWork.OrderItem.GetAllAsync(i=>i.OrderId==order.Id,i=>i.Package.Product);
-                var userCartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == 20);
+                var orderItemsList = await _unitOfWork.OrderItem.GetAllAsync(i => i.OrderId == order.Id, i => i.Package.Product);
+                var userCartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == user.Id);
+
+                foreach (var orderItem in orderItemsList)
+                {
+                    var package = orderItem.Package;
+                    package.Stock -= orderItem.Quantity;
+                    _unitOfWork.Package.Update(package);
+                }
 
                 _unitOfWork.CartItem.DeleteRange(userCartItems);
                 await _unitOfWork.Save();
+
 
                 // Create a Stripe session
                 var domain = "http://127.0.0.1:5500/hello.html";
@@ -191,7 +201,7 @@ namespace Smarket.Controllers
                             Currency = "usd",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
-                                Name =oi.Package.Product.Name ,
+                                Name = oi.Package.Product.Name,
                                 Description = oi.Package.Product.Description,
                             },
                         },
@@ -216,4 +226,3 @@ namespace Smarket.Controllers
 
     }
 }
-*/

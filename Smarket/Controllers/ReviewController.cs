@@ -1,4 +1,4 @@
-﻿/*using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
@@ -34,7 +34,6 @@ namespace Smarket.Controllers
             await _unitOfWork.Save();
             return Ok();
         }
-        
+
     }
 }
-*/

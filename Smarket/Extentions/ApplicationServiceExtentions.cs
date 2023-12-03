@@ -2,6 +2,9 @@
 using Smarket.DataAccess;
 using Smarket.DataAccess.Repository;
 using Smarket.DataAccess.Repository.IRepository;
+using Smarket.Services.IServices;
+using Smarket.Services;
+using Smarket.Settings;
 
 namespace Smarket.Extentions
 {
@@ -12,6 +15,11 @@ namespace Smarket.Extentions
             services.AddDbContext<ApplicationDbContext>(options =>
                  options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+           services.AddAutoMapper(typeof(Program).Assembly);
+            services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddSingleton<IEmailService, EmailService>();
 
             return services;
         }

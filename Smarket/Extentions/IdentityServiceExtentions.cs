@@ -34,36 +34,33 @@ namespace Smarket.Extentions
                 options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
             })
-                            .AddCookie("Identity.Application")
-                            .AddCookie("Identity.TwoFactorRememberMe")
-                            .AddCookie("Identity.TwoFactorUserId")
-
-
-                .AddJwtBearer(options =>
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"])),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                    };
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"])),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                };
 
-                })
-
-                .AddGoogle(options =>
-                {
-                    options.ClientId = config["Authentication:Google:ClientId"];
-                    options.ClientSecret = config["Authentication:Google:ClientSecret"];
-                    options.CallbackPath = "/signin-google";
-                })
-                .AddMicrosoftAccount(options =>
-                {
-                    options.ClientId = config["Authentication:Microsoft:ClientId"];
-                    options.ClientSecret = config["Authentication:Microsoft:ClientSecret"];
-                    options.CallbackPath = "/signin-microsoft";
-                })
-                .AddCookie(IdentityConstants.ExternalScheme);
+            })
+            .AddCookie("Identity.Application")
+            .AddCookie("Identity.TwoFactorRememberMe")
+            .AddCookie("Identity.TwoFactorUserId")
+            .AddGoogle(options =>
+            {
+                options.ClientId = config["Authentication:Google:ClientId"];
+                options.ClientSecret = config["Authentication:Google:ClientSecret"];
+                options.CallbackPath = "/signin-google";
+            })
+            .AddMicrosoftAccount(options =>
+            {
+                options.ClientId = config["Authentication:Microsoft:ClientId"];
+                options.ClientSecret = config["Authentication:Microsoft:ClientSecret"];
+                options.CallbackPath = "/signin-microsoft";
+            })
+            .AddCookie(IdentityConstants.ExternalScheme);
 
 
 
