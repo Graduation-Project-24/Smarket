@@ -121,7 +121,7 @@ namespace Smarket.Controllers
 
                 return Ok(new { Message = "Product removed from the cart successfully" });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, new { Message = "An error occurred while removing the product from the cart." });
             }
@@ -218,7 +218,7 @@ namespace Smarket.Controllers
 
                 return new StatusCodeResult(303);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, new { Message = "An error occurred during checkout." });
             }

@@ -16,14 +16,16 @@ namespace Smarket.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
+        private readonly ImageService _imageService;
 
         public AccountController(ITokenService tokenService, UserManager<User> userManager,
-            SignInManager<User> signInManager, IEmailService emailService)
+            SignInManager<User> signInManager, IEmailService emailService, ImageService imageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _emailService = emailService;
+            _imageService = imageService;
         }
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
@@ -90,14 +92,6 @@ namespace Smarket.Controllers
                 Token = await _tokenService.CreateToken(user),
             };
         }
-
-
-
-
-
-
-
-
 
         [HttpGet("ExternalLogin")]
 

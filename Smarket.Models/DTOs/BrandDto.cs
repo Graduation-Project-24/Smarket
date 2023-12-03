@@ -1,9 +1,11 @@
-﻿namespace Smarket.Models.DTOs
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Smarket.Models.DTOs
 {
     public class BrandDto
     {
         public string Name { get; set; }
-        public int ImageId { get; set; }
+        public IFormFile formFile { get; set; }
 
     }
 }

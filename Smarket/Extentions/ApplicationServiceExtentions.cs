@@ -20,6 +20,8 @@ namespace Smarket.Extentions
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
             services.AddTransient<ITokenService, TokenService>();
             services.AddSingleton<IEmailService, EmailService>();
+            services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
+            services.AddScoped<IImageService, ImageService>();
 
             return services;
         }
