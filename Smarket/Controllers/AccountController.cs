@@ -55,6 +55,8 @@ namespace Smarket.Controllers
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
+            await _userManager.AddToRoleAsync(user, "User");
+
             if (result.Succeeded)
             {
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -205,9 +207,7 @@ namespace Smarket.Controllers
             user.PhoneNumber = dto.PhoneNumber;
             user.City = dto.City;
             user.State = dto.State;
-            user.EmailConfirmed = false; // Assuming you want to set EmailConfirmed to false during the update
 
-            // Update the user using the UserManager
             var result = await _userManager.UpdateAsync(user);
 
             if (result.Succeeded)
@@ -219,8 +219,6 @@ namespace Smarket.Controllers
                     Image = cloudImage.Url.ToString(),
                 });
             }
-
-            // Handle the case where the update failed
             return BadRequest("Failed to update user");
         }
 

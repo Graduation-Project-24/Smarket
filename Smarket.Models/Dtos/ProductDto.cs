@@ -1,5 +1,5 @@
-﻿
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Http;
+
 using System.ComponentModel.DataAnnotations;
 
 namespace Smarket.Models.ViewModels
@@ -8,10 +8,6 @@ namespace Smarket.Models.ViewModels
     {
         public string Name { get; set; }
         public string Description { get; set; }
-
-        [Range(1, 1000)]
-        public double Price { get; set; } = 00;
-
         [Range(0, 5)]
         public int Rate { get; set; }
         public double? AvgRate { get; set; }
@@ -21,7 +17,7 @@ namespace Smarket.Models.ViewModels
 
         public int SubCategoryId { get; set; }
 
-        public int ImageId { get; set; }
+        public IFormFile formFile { get; set; }
 
 
     }
