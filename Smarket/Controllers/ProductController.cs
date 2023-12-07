@@ -87,7 +87,7 @@ namespace Smarket.Controllers
         [HttpGet("GetoneProduct/{id}")]
         public async Task<IActionResult> GetoneProduct(int id)
         {
-            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, i => i.Image);
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, i => i.Image,s=>s.SubCategory);
             var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.ProductId == product.Id);
 
             if (product == null)

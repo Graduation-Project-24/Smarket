@@ -1,4 +1,6 @@
-﻿namespace Smarket.DataAccess;
+﻿using Newtonsoft.Json;
+
+namespace Smarket.DataAccess;
 
 public class ApplicationDbContext : IdentityDbContext<User, Role, int,
     IdentityUserClaim<int>, UserRole, IdentityUserLogin<int>,
@@ -46,6 +48,16 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
            .WithMany()
            .HasForeignKey(x => x.BrandId)
            .OnDelete(DeleteBehavior.NoAction);
+        builder.Entity<Package>()
+           .HasOne(x => x.Inventory)
+           .WithMany()
+           .HasForeignKey(x => x.InventoryId)
+           .OnDelete(DeleteBehavior.NoAction);
+        builder.Entity<Package>()
+            .HasOne(x => x.Product)
+            .WithMany()
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 
     public DbSet<Brand> Brands { get; set; }
@@ -61,4 +73,36 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<UserReview> UserReviews { get; set; }
 
 
+
+   /* public void SeedData()
+    {
+        if (!Database.CanConnect())
+        {
+            Console.WriteLine("Database connection is not available.");
+            return;
+        }
+
+*//*        if (Brands.Any())
+        {
+            Console.WriteLine("Database already seeded.");
+            return;
+        }*//*
+
+        try
+        {
+            var jsonData = File.ReadAllText("D:\\DataSeed\\Brand.json");
+            var data = JsonConvert.DeserializeObject<List<Brand>>(jsonData);
+
+            // Add data to DbSet and save changes
+            Brands.AddRange(data); // Adjust this line based on the DbSet you want to seed
+
+            SaveChanges();
+
+            Console.WriteLine("Database seeded successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error seeding database: {ex.Message}");
+        }
+    }*/
 }

@@ -14,9 +14,14 @@ namespace Smarket.Extentions
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                  options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+/*            using (var serviceProvider = services.BuildServiceProvider())
+            {
+                var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
-           services.AddAutoMapper(typeof(Program).Assembly);
+                dbContext.SeedData();
+            }*/
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddAutoMapper(typeof(Program).Assembly);
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
             services.AddTransient<ITokenService, TokenService>();
             services.AddSingleton<IEmailService, EmailService>();

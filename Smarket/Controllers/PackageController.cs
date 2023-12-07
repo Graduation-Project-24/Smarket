@@ -21,7 +21,7 @@ namespace Smarket.Controllers
             try
             { 
 
-                var Packages = await _unitOfWork.Package.GetAllAsync();
+                var Packages = await _unitOfWork.Package.GetAllAsync(null,i=>i.Inventory);
                 return Ok(Packages);
             }
             catch (Exception ex)
