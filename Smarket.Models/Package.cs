@@ -13,8 +13,7 @@
         public Product Product { get; set; }
         public int InventoryId { get; set; }
         public Inventory Inventory { get; set; }
-        public ICollection<OrderItem> Items { get; set;}
-        public ICollection<CartItem> Carts { get; set;}
+
 
     }
 }

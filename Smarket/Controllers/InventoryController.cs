@@ -71,7 +71,7 @@ namespace Smarket.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var obj = await _unitOfWork.Category.FirstOrDefaultAsync(u => u.Id == id);
+            var obj = await _unitOfWork.Inventory.FirstOrDefaultAsync(u => u.Id == id);
             if (obj == null)
                 return NotFound();
             else

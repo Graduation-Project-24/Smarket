@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Smarket.Controllers
 {
+
     public class OrderController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -89,7 +90,7 @@ namespace Smarket.Controllers
             {
                 Quantity = addToCartDto.Quantity,
                 PackageId = addToCartDto.PackageId,
-                UserId = addToCartDto.UserId,
+                UserId = user.Id,
             };
 
             await _unitOfWork.CartItem.AddAsync(cartItem);
@@ -162,7 +163,7 @@ namespace Smarket.Controllers
                 {
                     Date = DateTime.Now,
                     TotalPrice = orderItemDtos.Sum(oi => oi.Price * oi.Quantity),
-                    UserId = user.Id
+                    UserId = 28
                 };
 
                 await _unitOfWork.Order.AddAsync(order);
@@ -177,7 +178,7 @@ namespace Smarket.Controllers
                 await _unitOfWork.Save();
 
                 var orderItemsList = await _unitOfWork.OrderItem.GetAllAsync(i => i.OrderId == order.Id, i => i.Package.Product);
-                var userCartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == user.Id);
+                var userCartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == 28);
 
                 foreach (var orderItem in orderItemsList)
                 {
@@ -185,10 +186,10 @@ namespace Smarket.Controllers
                     package.Stock -= orderItem.Quantity;
                     _unitOfWork.Package.Update(package);
                 }
-
+/*
                 _unitOfWork.CartItem.DeleteRange(userCartItems);
                 await _unitOfWork.Save();
-
+*/
 
                 // Create a Stripe session
                 var domain = "http://127.0.0.1:5500/hello.html";
