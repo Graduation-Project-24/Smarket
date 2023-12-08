@@ -27,6 +27,7 @@ namespace Smarket.Extentions
             services.AddSingleton<IEmailService, EmailService>();
             services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IStripeService, StripeService>();
 
             return services;
         }
