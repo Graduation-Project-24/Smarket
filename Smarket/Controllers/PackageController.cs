@@ -21,7 +21,7 @@ namespace Smarket.Controllers
             try
             { 
 
-                var Packages = await _unitOfWork.Package.GetAllAsync(null,i=>i.Inventory);
+                var Packages = await _unitOfWork.Package.GetAllAsync(null, p => p.Product, p => p.Inventory);
                 return Ok(Packages);
             }
             catch (Exception ex)
@@ -73,7 +73,7 @@ namespace Smarket.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id);
+            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, p => p.Product, p => p.Inventory);
             if (obj == null)
                 return NotFound();
             else

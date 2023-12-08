@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.Dtos;
+using Smarket.Models.DTOs;
 
 
 namespace Smarket.Controllers
@@ -21,15 +24,27 @@ namespace Smarket.Controllers
         }
 
         [HttpPost("AddReview")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> AddReview(ReviewDto obj)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(c => c.Id == obj.ProductId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
             UserReview review = new UserReview()
             {
-                ProductId = obj.Id,
+                ProductId = obj.ProductId,
                 Rate = obj.Rate,
                 Comment = obj.Comment,
-                UserId = (await _userManager.GetUserAsync(User)).Id
+                UserId = user.Id
             };
+            
             await _unitOfWork.UserReview.AddAsync(review);
             await _unitOfWork.Save();
             return Ok();
