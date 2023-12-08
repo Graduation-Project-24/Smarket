@@ -12,10 +12,6 @@ namespace Smarket.Services
 {
     public class StripeService : IStripeService
     {
-        public StripeService()
-        {
-        }
-
         public async Task<string> CreateCheckoutSession(IEnumerable<OrderItem> orderItemsList)
         {
             try
@@ -29,7 +25,7 @@ namespace Smarket.Services
                         PriceData = new SessionLineItemPriceDataOptions
                         {
                             UnitAmount = (long)(oi.Package.Price * 100),
-                            Currency = "egy",
+                            Currency = "egp",
                             ProductData = new SessionLineItemPriceDataProductDataOptions
                             {
                                 Name = oi.Package.Product.Name,
@@ -51,7 +47,6 @@ namespace Smarket.Services
             }
             catch (Exception)
             {
-                // Handle the exception, you might want to log it or perform other actions
                 throw new Exception("An error occurred during checkout.");
             }
         }

@@ -138,7 +138,7 @@ namespace Smarket.Controllers
 
         [HttpPost]
         [Route("Checkout")]
-/*        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]*/
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Checkout()
         {
             try
@@ -185,8 +185,8 @@ namespace Smarket.Controllers
                 var userCartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == user.Id);
 
 
-/*                _unitOfWork.CartItem.DeleteRange(userCartItems);
-                await _unitOfWork.Save();*/
+                _unitOfWork.CartItem.DeleteRange(userCartItems);
+                await _unitOfWork.Save();
 
 
                 var sessionUrl = await _stripeService.CreateCheckoutSession(orderItemsList);
@@ -221,7 +221,7 @@ namespace Smarket.Controllers
                 foreach (var orderItem in orderItemsList)
                 {
                     var package = orderItem.Package;
-                    package.Stock -= orderItem.Quantity;
+                    package.left -= orderItem.Quantity;
                     _unitOfWork.Package.Update(package);
                 }
                 await _unitOfWork.Save();
