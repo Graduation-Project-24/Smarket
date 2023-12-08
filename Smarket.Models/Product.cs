@@ -16,5 +16,6 @@ namespace Smarket.Models
 
         [AllowNull]
         public Image Image { get; set; } 
+
     }
 }

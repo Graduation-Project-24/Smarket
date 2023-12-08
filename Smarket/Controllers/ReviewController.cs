@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.Dtos;
-using Smarket.Models.DTOs;
+
 
 
 namespace Smarket.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ReviewController : ControllerBase
+
+    public class ReviewController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<User> _userManager;
