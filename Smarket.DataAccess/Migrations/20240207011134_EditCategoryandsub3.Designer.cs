@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smarket.DataAccess;
 
@@ -11,9 +12,11 @@ using Smarket.DataAccess;
 namespace Smarket.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240207011134_EditCategoryandsub3")]
+    partial class EditCategoryandsub3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -329,6 +332,9 @@ namespace Smarket.DataAccess.Migrations
                     b.Property<int>("BrandId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BrandId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -341,13 +347,20 @@ namespace Smarket.DataAccess.Migrations
                     b.Property<int>("SubCategoryId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SubCategoryId1")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
 
+                    b.HasIndex("BrandId1");
+
                     b.HasIndex("ImageId");
 
                     b.HasIndex("SubCategoryId");
+
+                    b.HasIndex("SubCategoryId1");
 
                     b.ToTable("Products");
                 });
@@ -393,12 +406,17 @@ namespace Smarket.DataAccess.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CategoryId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("CategoryId1");
 
                     b.ToTable("SubCategories");
                 });
@@ -668,10 +686,14 @@ namespace Smarket.DataAccess.Migrations
             modelBuilder.Entity("Smarket.Models.Product", b =>
                 {
                     b.HasOne("Smarket.Models.Brand", "Brand")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("BrandId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("Smarket.Models.Brand", null)
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId1");
 
                     b.HasOne("Smarket.Models.Image", "Image")
                         .WithMany()
@@ -680,10 +702,14 @@ namespace Smarket.DataAccess.Migrations
                         .IsRequired();
 
                     b.HasOne("Smarket.Models.SubCategory", "SubCategory")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("SubCategoryId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("Smarket.Models.SubCategory", null)
+                        .WithMany("Products")
+                        .HasForeignKey("SubCategoryId1");
 
                     b.Navigation("Brand");
 
@@ -694,11 +720,17 @@ namespace Smarket.DataAccess.Migrations
 
             modelBuilder.Entity("Smarket.Models.SubCategory", b =>
                 {
+                    b.HasOne("Smarket.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Smarket.Models.Category", null)
                         .WithMany("SubCategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId1");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Smarket.Models.User", b =>

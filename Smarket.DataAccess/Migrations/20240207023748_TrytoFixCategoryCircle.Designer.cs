@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smarket.DataAccess;
 
@@ -11,9 +12,11 @@ using Smarket.DataAccess;
 namespace Smarket.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240207023748_TrytoFixCategoryCircle")]
+    partial class TrytoFixCategoryCircle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -398,8 +401,6 @@ namespace Smarket.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.ToTable("SubCategories");
                 });
 
@@ -692,15 +693,6 @@ namespace Smarket.DataAccess.Migrations
                     b.Navigation("SubCategory");
                 });
 
-            modelBuilder.Entity("Smarket.Models.SubCategory", b =>
-                {
-                    b.HasOne("Smarket.Models.Category", null)
-                        .WithMany("SubCategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Smarket.Models.User", b =>
                 {
                     b.HasOne("Smarket.Models.Image", "Image")
@@ -753,11 +745,6 @@ namespace Smarket.DataAccess.Migrations
             modelBuilder.Entity("Smarket.Models.Brand", b =>
                 {
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Smarket.Models.Category", b =>
-                {
-                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("Smarket.Models.Inventory", b =>

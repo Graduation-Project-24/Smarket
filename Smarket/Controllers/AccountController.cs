@@ -226,9 +226,9 @@ namespace Smarket.Controllers
 
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto forgotPasswordDto)
+        public async Task<IActionResult> ForgotPassword([FromForm] string email)
         {
-            var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            var user = await _userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
@@ -236,10 +236,10 @@ namespace Smarket.Controllers
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetLink = Url.Action(nameof(ResetPassword), "Account", new { token, email = forgotPasswordDto.Email }, Request.Scheme);
+            var resetLink = Url.Action(nameof(ResetPassword), "Account", new { token, email = email }, Request.Scheme);
 
             // Send the reset password link to the user's email
-            await _emailService.EmailSender(forgotPasswordDto.Email, "Reset Your Password", resetLink);
+            await _emailService.EmailSender(email, "Reset Your Password", resetLink);
 
             return Ok("Reset password link sent to your email.");
         }
