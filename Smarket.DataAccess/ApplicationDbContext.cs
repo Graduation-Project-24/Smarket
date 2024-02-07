@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Smarket.Models;
 
 namespace Smarket.DataAccess;
 
@@ -40,12 +42,12 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
            .OnDelete(DeleteBehavior.NoAction);
         builder.Entity<Product>()
            .HasOne(x => x.SubCategory)
-           .WithMany()
+           .WithMany(subcategory => subcategory.Products)
            .HasForeignKey(x => x.SubCategoryId)
            .OnDelete(DeleteBehavior.NoAction);
         builder.Entity<Product>()
            .HasOne(x => x.Brand)
-           .WithMany()
+           .WithMany(brand=>brand.Products)
            .HasForeignKey(x => x.BrandId)
            .OnDelete(DeleteBehavior.NoAction);
         builder.Entity<Package>()
@@ -58,6 +60,13 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
             .WithMany()
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.NoAction);
+
+/*        builder.Entity<SubCategory>()
+           .HasOne(x => x.Category)
+           .WithMany(x => x.SubCategories)
+           .HasForeignKey(x => x.CategoryId)
+           .OnDelete(DeleteBehavior.NoAction);*/
+
     }
 
     public DbSet<Brand> Brands { get; set; }

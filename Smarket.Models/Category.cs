@@ -11,5 +11,6 @@ namespace Smarket.Models
         public Image Image { get; set; }
 
         public ICollection<SubCategory> SubCategories { get; set; }
+
     }
 }

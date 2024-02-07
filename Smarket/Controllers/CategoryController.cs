@@ -22,8 +22,8 @@ namespace Smarket.Controllers
         [HttpGet]
 		public async Task<IActionResult> GetAll()
 		{
-			var categories = await _unitOfWork.Category.GetAllAsync(null,i => i.Image);
-			return Ok(categories);
+			var categories = await _unitOfWork.Category.GetAllAsync(null,i => i.Image,i=>i.SubCategories);
+            return Ok(categories);
 		}
 		[HttpGet("Details")]
 		public async Task<IActionResult> Details(int id)
