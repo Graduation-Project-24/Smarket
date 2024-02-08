@@ -19,13 +19,19 @@ namespace Smarket.Controllers
             _unitOfWork = unitOfWork;
             _imageService = imageService;
         }
-        [HttpGet]
-		public async Task<IActionResult> GetAll()
+        [HttpGet("GetAllWithSubCategories")]
+		public async Task<IActionResult> GetAllWithSubCategories()
 		{
 			var categories = await _unitOfWork.Category.GetAllAsync(null,i => i.Image,i=>i.SubCategories);
             return Ok(categories);
 		}
-		[HttpGet("Details")]
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var categories = await _unitOfWork.Category.GetAllAsync(null, i => i.Image);
+            return Ok(categories);
+        }
+        [HttpGet("Details")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var Category = await _unitOfWork.Category.FirstOrDefaultAsync(b => b.Id == id, i => i.Image);

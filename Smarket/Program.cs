@@ -11,7 +11,7 @@ builder.Services.AddIdentityServices(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddControllers();
-
+builder.Services.AddLogging();
 // Swagger configuration
 builder.Services.AddSwaggerGen(c =>
 {

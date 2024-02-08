@@ -30,11 +30,6 @@ namespace Smarket.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-            if (await _userManager.Users.AnyAsync(x => x.UserName == registerDto.UserName))
-            {
-                return BadRequest("Username is taken");
-            }
-
             if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
             {
                 return BadRequest("Email is taken");
@@ -42,14 +37,11 @@ namespace Smarket.Controllers
 
             var user = new User
             {
-                UserName = registerDto.UserName,
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 DateOfBirth = registerDto.DateOfBirth,
                 Email = registerDto.Email,
                 PhoneNumber = registerDto.PhoneNumber,
-                City = registerDto.City,
-                State = registerDto.State,
                 EmailConfirmed = false
             };
 
@@ -226,7 +218,7 @@ namespace Smarket.Controllers
 
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromForm] string email)
+        public async Task<IActionResult> ForgotPassword(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
 

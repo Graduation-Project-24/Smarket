@@ -24,7 +24,7 @@ namespace Smarket.Controllers
             try
             {
                 // Include SubCategory and Brand
-                var products = await _unitOfWork.Product.GetAllAsync(null, p => p.Image, p => p.SubCategory, p => p.Brand);
+                var products = await _unitOfWork.Product.GetAllAsync(null, p => p.Image, p => p.SubCategory);
                 return Ok(products);
             }
             catch (Exception ex)
@@ -73,7 +73,7 @@ namespace Smarket.Controllers
         [HttpDelete("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory, p => p.Brand);
+            var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory);
             if (obj == null)
                 return NotFound();
             else
@@ -87,7 +87,7 @@ namespace Smarket.Controllers
         [HttpGet("GetoneProduct/{id}")]
         public async Task<IActionResult> GetoneProduct(int id)
         {
-            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory, p => p.Brand);
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory);
             var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.ProductId == product.Id);
 
             if (product == null)
@@ -107,7 +107,7 @@ namespace Smarket.Controllers
         [HttpPost("Edit")]
         public async Task<IActionResult> Edit(int id, ProductDto obj)
         {
-            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory, p => p.Brand);
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory);
             await _imageService.DeletePhotoAsync(product.Image.PublicId);
 
             var image = await _imageService.AddPhotoAsync(obj.formFile);
@@ -130,7 +130,7 @@ namespace Smarket.Controllers
         [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
-            var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory, p => p.Brand);
+            var obj = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.Id == id, p => p.Image, p => p.SubCategory);
             if (obj == null)
                 return NotFound();
             else
@@ -142,7 +142,7 @@ namespace Smarket.Controllers
         [HttpGet("GetBySubCategory")]
         public async Task<IActionResult> GetBySubCategory(int subCategoryId)
         {
-            var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.SubCategoryId == subCategoryId, p => p.Image, p => p.Brand);
+            var products = await _unitOfWork.Product.FirstOrDefaultAsync(u => u.SubCategoryId == subCategoryId, p => p.Image);
             return Ok(products);
         }
 
