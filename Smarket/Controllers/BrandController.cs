@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Smarket.DataAccess;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.DTOs;
@@ -10,93 +11,207 @@ namespace Smarket.Controllers
 	public class BrandController : BaseApiController
 	{
 		private readonly IUnitOfWork _unitOfWork;
-        private readonly IImageService _imageService;
-
-        public BrandController(IUnitOfWork unitOfWork, IImageService imageService)
-        {
-            _unitOfWork = unitOfWork;
-            _imageService = imageService;
-        }
-        [HttpGet]
-		public async Task<IActionResult> GetAll()
+		private readonly IImageService _imageService;
+		private readonly ApplicationDbContext _dbContext;
+        private readonly ILogger<BrandController> _logger;
+        public BrandController(IUnitOfWork unitOfWork, IImageService imageService, ApplicationDbContext dbContext,
+        ILogger<BrandController> logger)
 		{
-			var brands = await _unitOfWork.Brand.GetAllAsync(null, i => i.Image);
-			return Ok(brands);
-		}
-		[HttpGet("Details")]
-		public async Task<IActionResult> Details(int id)
-		{
-			var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(b => b.Id == id, i => i.Image);
-			return Ok(brand);
+			_unitOfWork = unitOfWork;
+			_imageService = imageService;
+			_dbContext = dbContext;
+			_logger = logger;
 		}
 
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<BrandDto>>> GetAllBrandsAsync()
+		{
+			try
+			{
+				var brands = await _unitOfWork.Brand.GetAllAsync(null,i => i.Image);
+
+				var brandDtos = brands.Select(b => new BrandDto
+				{
+					Name = b.Name,
+					ImageUrl = b.Image.Url
+				});
+
+				return Ok(brandDtos);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting brands");
+				return StatusCode(500, "Internal server error");
+			}
+		}
+		[HttpGet("Details/{id:int}")]
+		public async Task<ActionResult<BrandDto>> GetBrandDetailsAsync(int id)
+		{
+			// Validate input
+			if (id <= 0)
+				return BadRequest("Invalid brand id");
+
+			try
+			{
+				// Get brand data
+				var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(b => b.Id == id, i => i.Image);
+
+				if (brand == null)
+					return NotFound();
+
+				// Map to DTO
+				var brandDetails = new BrandDto
+				{
+					Name = brand.Name,
+					ImageUrl = brand.Image.Url
+				};
+
+				return Ok(brandDetails);
+
+			}
+			catch (Exception ex)
+			{
+				// Log error
+				_logger.LogError(ex, $"Error getting brand {id}");
+
+				return StatusCode(500, "Internal server error");
+			}
+		}
 		[HttpPost("Create")]
-		public async Task<IActionResult> Create([FromForm]BrandDto dto)
+		public async Task<IActionResult> CreateBrandAsync([FromForm] BrandDto brandDto)
 		{
-            var image = await _imageService.AddPhotoAsync(dto.formFile);
-
-            var cloudimage = new Image
-            {
-                PublicId = image.PublicId,
-                Url = image.Url.ToString(),
-            };
-            var brand = new Brand
+			// Validate model state
+			if (!ModelState.IsValid)
 			{
-				Name = dto.Name,
-				Image = cloudimage
-
-			};
-			if (ModelState.IsValid)
+				return BadRequest(ModelState);
+			}
+			try
 			{
-				await _unitOfWork.Brand.AddAsync(brand);
-				await _unitOfWork.Save();
+				// Upload image
+				var imageUploadResult = await _imageService.AddPhotoAsync(brandDto.formFile);
+
+				// Create brand 
+				var brand = new Brand
+				{
+					Name = brandDto.Name,
+					Image = new Image
+					{
+						PublicId = imageUploadResult.PublicId,
+						Url = imageUploadResult.Url.ToString(),
+					}
+				};
+
+				// Save 
+				using (var transaction = _dbContext.Database.BeginTransaction())
+				{
+					_dbContext.Brands.Add(brand);
+					await _dbContext.SaveChangesAsync();
+
+					transaction.Commit();
+				}
+
+				return Ok(brand);
+
+			}
+			catch (Exception ex)
+			{
+				// Log error
+				_logger.LogError(ex, "Error creating brand");
+				return StatusCode(500, "Internal server error");
+			}
+		}
+
+		[HttpPut("Edit/{id:int}")]
+		public async Task<ActionResult> UpdateBrandAsync(int id, [FromForm] BrandDto updatedBrandDto)
+		{
+			// Validate input
+			if (id <= 0 || !ModelState.IsValid)
+				return BadRequest();
+
+			try
+			{
+				// Get old brand data
+				var oldBrand = await _unitOfWork.Brand.FirstOrDefaultAsync(b => b.Id == id, i => i.Image);
+				if (oldBrand == null)
+					return NotFound();
+
+				// Delete old image
+				if (oldBrand.Image?.PublicId != null)
+					await _imageService.DeletePhotoAsync(oldBrand.Image.PublicId);
+
+				// Upload new image
+				var imageUploadResult = await _imageService.AddPhotoAsync(updatedBrandDto.formFile);
+
+				// Update brand fields
+				oldBrand.Name = updatedBrandDto.Name;
+				oldBrand.Image.PublicId = imageUploadResult.PublicId;
+				oldBrand.Image.Url = imageUploadResult.Url.ToString();
+
+
+				// Save 
+				using (var transaction = _dbContext.Database.BeginTransaction())
+				{
+					_unitOfWork.Brand.Update(oldBrand);
+					await _unitOfWork.Save();
+					transaction.Commit();
+				}
 				return Ok(new
 				{
-                    Name = dto.Name,
-                    Image = cloudimage.Url.ToString(),
-                });
+					Name = oldBrand.Name,
+					ImageUrl = oldBrand.Image.Url.ToString(),
+				});
 			}
-			return RedirectToAction("There is an Error while Deleting");
-		}
-
-		[HttpPost("Edit")]
-		public async Task<IActionResult> Edit(int id, BrandDto dto)
-		{
-			if (ModelState.IsValid)
+			catch (Exception ex)
 			{
-				var oldbrand = await _unitOfWork.Brand.FirstOrDefaultAsync(x => x.Id == id, i => i.Image);
+				// Log error
+				_logger.LogError(ex, $"Error updating brand {id}");
 
-                await _imageService.DeletePhotoAsync(oldbrand.Image.PublicId);
-
-                var image = await _imageService.AddPhotoAsync(dto.formFile);
-
-                oldbrand.Name = dto.Name;
-                oldbrand.Image.PublicId = image.PublicId;
-                oldbrand.Image.Url = image.Url.ToString();
-
-                _unitOfWork.Brand.Update(oldbrand);
-				await _unitOfWork.Save();
-				return Ok(new
-                {
-                    Name = dto.Name,
-                    ImageUrl = image.Url.ToString(),
-                });
+				return StatusCode(500, "Internal server error");
 			}
-			return RedirectToAction("There is an Error while Deleting");
 		}
-
-		[HttpPost("Delete")]
-		public async Task<IActionResult> Delete(int id)
+		[HttpDelete("Delete/{id:int}")]
+		public async Task<ActionResult> DeleteBrandAsync(int id)
 		{
-			if (ModelState.IsValid)
+			try
 			{
-				var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(x => x.Id == id, i => i.Image);
-                await _imageService.DeletePhotoAsync(brand.Image.PublicId);
-                _unitOfWork.Brand.Delete(brand);
+				// Validate input   
+				if (id <= 0)
+					return BadRequest("Invalid id");
+
+				// Get brand to delete
+				var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(b => b.Id == id);
+				if (brand == null)
+					return NotFound();
+
+				// Delete image
+				if (brand.Image?.PublicId != null)
+					await _imageService.DeletePhotoAsync(brand.Image.PublicId);
+
+				var products = await _unitOfWork.Product.GetAllAsync();
+				
+				foreach (var product in products)
+				{
+					if (product.BrandId == id)
+					{
+						product.BrandId = null;
+						_unitOfWork.Product.Update(product);
+					}
+				}
 				await _unitOfWork.Save();
+				
+				// Delete brand
+				_unitOfWork.Brand.Delete(brand);
+				await _unitOfWork.Save();
+
 				return Ok("Brand Has Deleted");
 			}
-			return RedirectToAction("There is an Error while Deleting");
+			catch (Exception ex)
+			{
+				// Log error
+				_logger.LogError(ex, $"Error deleting brand {id}");
+
+				return StatusCode(500, "Internal server error");
+			}
 		}
 	}
 }

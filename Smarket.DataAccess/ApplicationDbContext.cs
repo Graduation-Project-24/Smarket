@@ -45,11 +45,6 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
            .WithMany(subcategory => subcategory.Products)
            .HasForeignKey(x => x.SubCategoryId)
            .OnDelete(DeleteBehavior.NoAction);
-        builder.Entity<Product>()
-           .HasOne(x => x.Brand)
-           .WithMany(brand=>brand.Products)
-           .HasForeignKey(x => x.BrandId)
-           .OnDelete(DeleteBehavior.NoAction);
         builder.Entity<Package>()
            .HasOne(x => x.Inventory)
            .WithMany()
@@ -60,12 +55,11 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
             .WithMany()
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.NoAction);
+        builder.Entity<Product>()
+                    .HasOne(p => p.Brand)
+                    .WithMany(b => b.Products)
+                    .OnDelete(DeleteBehavior.Cascade); 
 
-/*        builder.Entity<SubCategory>()
-           .HasOne(x => x.Category)
-           .WithMany(x => x.SubCategories)
-           .HasForeignKey(x => x.CategoryId)
-           .OnDelete(DeleteBehavior.NoAction);*/
 
     }
 
