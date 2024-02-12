@@ -15,38 +15,51 @@ namespace Smarket.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<User> _userManager;
-
-        public ReviewController(IUnitOfWork unitOfWork, UserManager<User> userManager)
+        private readonly ILogger<ReviewController> _logger;
+        public ReviewController(IUnitOfWork unitOfWork, UserManager<User> userManager,
+        ILogger<ReviewController> logger)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _logger = logger;
         }
+        // Smarket\Controllers\ReviewController.cs
 
-        [HttpPost("AddReview")]
+        [HttpPost("Add")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> AddReview(ReviewDto obj)
+        public async Task<IActionResult> CreateReview([FromBody] ReviewDto obj)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound("User not found");
+                return BadRequest(ModelState);
             }
-            var product = await _unitOfWork.Product.FirstOrDefaultAsync(c => c.Id == obj.ProductId);
-            if (user == null)
+
+            try
             {
-                return NotFound("User not found");
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+                var product = await _unitOfWork.Product.FirstOrDefaultAsync(c => c.Id == obj.ProductId);
+
+                UserReview review = new UserReview()
+                {
+                    ProductId = obj.ProductId,
+                    Rate = obj.Rate,
+                    Comment = obj.Comment,
+                    UserId = user.Id
+                };
+
+                await _unitOfWork.UserReview.AddAsync(review);
+                await _unitOfWork.Save();
+                return Ok();
             }
-            UserReview review = new UserReview()
+            catch (Exception ex)
             {
-                ProductId = obj.ProductId,
-                Rate = obj.Rate,
-                Comment = obj.Comment,
-                UserId = user.Id
-            };
-            
-            await _unitOfWork.UserReview.AddAsync(review);
-            await _unitOfWork.Save();
-            return Ok();
+                _logger.LogError(ex, "Error creating review");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
     }
