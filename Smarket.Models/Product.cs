@@ -12,6 +12,7 @@ namespace Smarket.Models
         public Brand Brand { get; set; }
 
         public int? SubCategoryId { get; set; } 
+
         public SubCategory SubCategory { get; set; } 
         public int ImageId { get; set; } = 0;
 
