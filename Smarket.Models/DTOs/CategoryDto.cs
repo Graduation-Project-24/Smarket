@@ -6,5 +6,6 @@ namespace Smarket.Models.DTOs
     {
         public string Name { get; set; }
         public IFormFile formFile { get; set; }
+
     }
 }
