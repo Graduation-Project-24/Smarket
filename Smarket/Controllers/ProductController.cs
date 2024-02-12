@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
+using Smarket.Models.Dtos;
 using Smarket.Models.DTOs;
 using Smarket.Models.ViewModels;
 using Smarket.Services.IServices;
@@ -49,7 +50,36 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        [HttpGet("GetProductsWithReview")]
+        public async Task<ActionResult<IEnumerable<ProductDtoReview>>> GetProductsWithReview()
+        {
+            try
+            {
+                var products = await _unitOfWork.Product.GetAllAsync(null, p => p.SubCategory, p => p.Brand, p => p.Image,p=>p.Reviews);
 
+                var productDtos = products.Select(p => new ProductDtoReview
+                {
+                    Name = p.Name,
+                    Description = p.Description,
+                    SubCategoryName = p.SubCategory != null ? p.SubCategory.Name : null,
+                    BrandName = p.Brand.Name != null ? p.Brand.Name : null,
+                    ImageUrl = p.Image.Url,
+                    Reviews = p.Reviews.Select(p => new ReviewDto
+                    {
+                        Comment= p.Comment,
+                        ProductId = p.Id,
+                        Rate = p.Rate,
+                    }).ToList()
+                });
+
+                return Ok(productDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting products");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         // Smarket\Controllers\ProductController.cs
 

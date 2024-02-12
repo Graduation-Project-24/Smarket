@@ -37,6 +37,7 @@ namespace Smarket.Controllers
 
             var user = new User
             {
+                UserName=registerDto.Email.Substring(0, registerDto.Email.IndexOf("@")),
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 DateOfBirth = registerDto.DateOfBirth,
