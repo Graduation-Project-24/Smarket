@@ -10,6 +10,6 @@ namespace Smarket.Models.DTOs
     public class CategoryDtoImageUrl
     {
         public string Name { get; set; }
-        public string ImageUrl { get; set; }
+        public object Image { get; set; }
     }
 }

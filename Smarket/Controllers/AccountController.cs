@@ -17,46 +17,58 @@ namespace Smarket.Controllers
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailService;
         private readonly IImageService _imageService;
-
+        private readonly ILogger<AccountController> _logger;
         public AccountController(ITokenService tokenService, UserManager<User> userManager,
-            SignInManager<User> signInManager, IEmailService emailService, IImageService imageService)
+            SignInManager<User> signInManager, IEmailService emailService, IImageService imageService , ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
             _emailService = emailService;
             _imageService = imageService;
+            _logger = logger;
         }
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-            if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
+            try
             {
-                return BadRequest("Email is taken");
-            }
+                _logger.LogInformation("Registration attempt for email: {Email}", registerDto.Email);
 
-            var user = new User
-            {
-                UserName=registerDto.Email.Substring(0, registerDto.Email.IndexOf("@")),
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                DateOfBirth = registerDto.DateOfBirth,
-                Email = registerDto.Email,
-                PhoneNumber = registerDto.PhoneNumber,
-                EmailConfirmed = false
-            };
+                if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
+                {
+                    _logger.LogWarning("Email {Email} is already taken.", registerDto.Email);
+                    return BadRequest("Email is already taken");
+                }
 
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
+                var user = new User
+                {
+                    UserName = registerDto.Email.Substring(0, registerDto.Email.IndexOf("@")),
+                    FirstName = registerDto.FirstName,
+                    LastName = registerDto.LastName,
+                    DateOfBirth = registerDto.DateOfBirth,
+                    Email = registerDto.Email,
+                    PhoneNumber = registerDto.PhoneNumber,
+                    EmailConfirmed = false
+                };
 
-            await _userManager.AddToRoleAsync(user, "User");
+                var result = await _userManager.CreateAsync(user, registerDto.Password);
 
-            if (result.Succeeded)
-            {
+                if (!result.Succeeded)
+                {
+                    _logger.LogError("Failed to register user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+                    return BadRequest("Failed to register user");
+                }
+
+                await _userManager.AddToRoleAsync(user, "User");
+
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
                 var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme);
 
                 await _emailService.EmailSender(user.Email, "Confirm Your Email", confirmationLink);
+
+                _logger.LogInformation("User registered successfully: {Email}", user.Email);
 
                 return new UserDto
                 {
@@ -64,8 +76,11 @@ namespace Smarket.Controllers
                     Token = await _tokenService.CreateToken(user),
                 };
             }
-
-            return BadRequest("Problem registering user");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during user registration.");
+                return StatusCode(500, "An error occurred during user registration.");
+            }
         }
 
 
