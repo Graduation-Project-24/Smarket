@@ -38,8 +38,8 @@ namespace Smarket.Controllers
 				var categoryDtos = categories.Select(c => new CategoryDtoImageUrl
                 {
 					Name = c.Name,
-					ImageUrl = c.Image.Url
-				});
+					Image = new { Url = c.Image.Url }
+                });
 
 				return Ok(categoryDtos);
 			}
@@ -77,7 +77,7 @@ namespace Smarket.Controllers
 				var categoryDetails = new CategoryDtoImageUrl
                 {
 					Name = category.Name,
-					ImageUrl = category.Image.Url
+					Image = new { Url = category.Image.Url }
 				};
 
 				return Ok(categoryDetails);
