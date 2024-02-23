@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smarket.DataAccess;
 
@@ -11,9 +12,11 @@ using Smarket.DataAccess;
 namespace Smarket.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240223155500_EditPackage")]
+    partial class EditPackage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -286,7 +289,7 @@ namespace Smarket.DataAccess.Migrations
                     b.Property<DateTime>("ExpireDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("InventoryId")
+                    b.Property<int?>("InventoryId")
                         .HasColumnType("int");
 
                     b.Property<double>("ListPrice")
@@ -641,9 +644,7 @@ namespace Smarket.DataAccess.Migrations
                 {
                     b.HasOne("Smarket.Models.Inventory", "Inventory")
                         .WithMany("Packages")
-                        .HasForeignKey("InventoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("InventoryId");
 
                     b.HasOne("Smarket.Models.Product", "Product")
                         .WithMany()

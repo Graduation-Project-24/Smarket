@@ -30,7 +30,6 @@ namespace Smarket.Controllers
             }
 
         }
-        // No need for All Inventoies and Products in Creating, and you should do include in get method
         [HttpPost("Create")]
         public async Task<IActionResult> Create(PackageDto viewModel)
         {
@@ -44,7 +43,8 @@ namespace Smarket.Controllers
                     Price = viewModel.Price,
                     ListPrice = viewModel.ListPrice,
                     ProductId = viewModel.ProductId,
-                    InventoryId = viewModel.InventoryId
+                    InventoryId = viewModel.InventoryId,
+                    
                 };
 
                 await _unitOfWork.Package.AddAsync(package);
@@ -90,7 +90,7 @@ namespace Smarket.Controllers
             package.Price = obj.Price;
             package.ListPrice = obj.ListPrice;
             package.ProductId = obj.ProductId;
-            package.InventoryId = obj.InventoryId;
+            package.Inventory.Id = obj.InventoryId;
 
             _unitOfWork.Package.Update(package);
             await _unitOfWork.Save();

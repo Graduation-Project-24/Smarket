@@ -40,11 +40,11 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
            .WithMany()
            .HasForeignKey(x => x.ImageId)
            .OnDelete(DeleteBehavior.NoAction);
-        builder.Entity<Package>()
+/*        builder.Entity<Package>()
            .HasOne(x => x.Inventory)
            .WithMany()
            .HasForeignKey(x => x.InventoryId)
-           .OnDelete(DeleteBehavior.NoAction);
+           .OnDelete(DeleteBehavior.NoAction);*/
         builder.Entity<Package>()
             .HasOne(x => x.Product)
             .WithMany()
