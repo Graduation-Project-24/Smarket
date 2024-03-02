@@ -1,4 +1,6 @@
-﻿namespace Smarket.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Smarket.Models
 {
     public class Package
     {
@@ -11,8 +13,9 @@
         public double Price { get; set; }
         public int ProductId { get; set; }
         public Product Product { get; set; }
+        [JsonIgnore]
         public Inventory Inventory { get; set; }
-        public int InventoryId { get; set; } = 0;
+        public int InventoryId { get; set; }
 
 
     }

@@ -36,7 +36,7 @@ namespace Smarket.Controllers
         [HttpGet]
         public async Task<IActionResult> GetById(int id)
         {
-            var obj = await _unitOfWork.Order.FirstOrDefaultAsync(x => x.Id == id);
+            var obj = await _unitOfWork.Order.FirstOrDefaultAsync(x => x.Id == id,p=>p.Items);
             if (obj is null)
                 return NotFound();
             return Ok(new { Order = obj });

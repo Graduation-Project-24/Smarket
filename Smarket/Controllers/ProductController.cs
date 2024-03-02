@@ -5,6 +5,7 @@ using Smarket.Models.Dtos;
 using Smarket.Models.DTOs;
 using Smarket.Models.ViewModels;
 using Smarket.Services.IServices;
+using Stripe;
 
 namespace Smarket.Controllers
 {
@@ -50,6 +51,34 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        [HttpGet("GetProductAI")]
+        public async Task<ActionResult<IEnumerable<ProductDtoAxies>>> GetProductAI(int id)
+        {
+            try
+            {
+                var product = await _unitOfWork.Product.FirstOrDefaultAsync(p=>p.Id==id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                var productDto = new ProductDtoAxies
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    XAxies = product.XAxies,
+                    YAxies = product.YAxies,
+                };
+
+                return Ok(productDto);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting products");
+                return StatusCode(500, "Internal server error");
+            }
+        }
         [HttpGet("GetProductsWithReview")]
         public async Task<ActionResult<IEnumerable<ProductDtoReview>>> GetProductsWithReview()
         {
@@ -70,6 +99,31 @@ namespace Smarket.Controllers
                         ProductId = p.Id,
                         Rate = p.Rate,
                     }).ToList()
+                });
+
+                return Ok(productDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting products");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("GetProductsWithAxies")]
+        public async Task<ActionResult<IEnumerable<ProductDtoAllProductAxies>>> GetProductsWithAxies()
+        {
+            try
+            {
+                var products = await _unitOfWork.Product.GetAllAsync();
+
+                var productDtos = products.Select(p => new ProductDtoAllProductAxies
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    XAxies = p.XAxies,
+                    YAxies = p.YAxies,
+
                 });
 
                 return Ok(productDtos);
@@ -129,7 +183,7 @@ namespace Smarket.Controllers
             {
                 var imageUploadResult = await _imageService.AddPhotoAsync(productDto.formFile);
 
-                var product = new Product
+                var product = new Models.Product
                 {
                     Name = productDto.Name,
                     Description = productDto.Description,
@@ -139,7 +193,10 @@ namespace Smarket.Controllers
                     {
                         PublicId = imageUploadResult.PublicId,
                         Url = imageUploadResult.Url.ToString(),
-                    }
+                    },
+                    YAxies = productDto.YAxies,
+                    XAxies = productDto.XAxies,
+                    
                 };
 
                 await _unitOfWork.Product.AddAsync(product);

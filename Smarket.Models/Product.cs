@@ -8,9 +8,12 @@ namespace Smarket.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public ICollection<UserReview> Reviews { get; set; }
+
         public int? BrandId { get; set; }
         public Brand Brand { get; set; }
 
+        public int XAxies { get; set; }
+        public int YAxies { get; set; }
         public int? SubCategoryId { get; set; } 
 
         public SubCategory SubCategory { get; set; } 
