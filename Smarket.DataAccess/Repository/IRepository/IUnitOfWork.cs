@@ -14,6 +14,7 @@
         ISubCategoryRepository SubCategory { get; }
         IUserReviewRepository UserReview { get; }
         IOrderRepository Order { get; }
+        IUserFavRepository UserFav { get; }
         Task<int> Save();
     }
 }

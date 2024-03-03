@@ -73,6 +73,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<Product> Products { get; set; }
     public DbSet<SubCategory> SubCategories { get; set; }
     public DbSet<UserReview> UserReviews { get; set; }
+    public DbSet<UserFav> UserFavs { get; set; }
 
 
 

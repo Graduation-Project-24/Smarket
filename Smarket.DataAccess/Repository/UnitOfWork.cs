@@ -29,6 +29,7 @@ namespace Smarket.DataAccess.Repository
 
         public IUserReviewRepository UserReview { get; set; }
         public IOrderRepository Order { get; set; }
+        public IUserFavRepository UserFav { get; set; }
 
 
         public UnitOfWork(ApplicationDbContext context)
@@ -46,6 +47,7 @@ namespace Smarket.DataAccess.Repository
             Product = new ProductRepository(_context);
             SubCategory = new SubCategoryRepository(_context);
             UserReview = new UserReviewRepository(_context);
+            UserFav = new UserFavRepository(_context);
         }
 
 
