@@ -8,7 +8,7 @@ namespace Smarket.Models.DTOs
 {
     public class ConfirmEmailDtoWithfullinfo
     {
-        public string Token { get; set; }
-        public string Email { get; set; }
+        public string token { get; set; }
+        public string email { get; set; }
     }
 }

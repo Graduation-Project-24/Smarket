@@ -160,32 +160,30 @@ namespace Smarket.Controllers
             return Ok("Email confirmation link resent.");
         }
 
-        [HttpGet("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDtoWithfullinfo dto)
-        {
-            if (string.IsNullOrWhiteSpace(dto.Token) || string.IsNullOrWhiteSpace(dto.Email))
+            [HttpGet("ConfirmEmail")]
+            public async Task<ActionResult> ConfirmEmail(string token, string email)
             {
-                return BadRequest("Invalid token or email.");
-            }
+                if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
+                {
+                    return BadRequest("Token or email is missing.");
+                }
 
-            var user = await _userManager.FindByEmailAsync(dto.Email);
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return BadRequest("User not found.");
+                }
 
-            if (user == null)
-            {
-                return NotFound("User not found.");
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+                if (result.Succeeded)
+                {
+                    return Ok("Email confirmed successfully.");
+                }
+                else
+                {
+                    return BadRequest("Email confirmation failed.");
+                }
             }
-
-            var result = await _userManager.ConfirmEmailAsync(user, dto.Token);
-
-            if (result.Succeeded)
-            {
-                return Ok("EmailConfirmed");
-            }
-            else
-            {
-                return BadRequest("Email confirmation failed.");
-            }
-        }
 
 
         [HttpPut]
