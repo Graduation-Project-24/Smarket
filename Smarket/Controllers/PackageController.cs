@@ -1,103 +1,200 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
+using Smarket.Models.DTOs;
 using Smarket.Models.ViewModels;
-
+using Stripe;
 
 namespace Smarket.Controllers
 {
     public class PackageController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        private readonly ILogger<PackageController> _logger;
 
-        public PackageController(IUnitOfWork unitOfWork)
+        public PackageController(IUnitOfWork unitOfWork, IMapper mapper, ILogger<PackageController> logger)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _logger = logger;
         }
 
-        [HttpGet("Get")]
-        public async Task<IActionResult> Get()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PackageDtoWithInfo>>> GetPackages()
         {
             try
-            { 
+            {
+                var packages = await _unitOfWork.Package.GetAllAsync(null,
+                p => p.Product.Image, p => p.Inventory);
 
-                var Packages = await _unitOfWork.Package.GetAllAsync(null, p => p.Product, p => p.Inventory);
-                return Ok(Packages);
+                var packageDtos = packages.Select(p => new PackageDtoWithInfo
+                {
+                    ProductName=p.Product.Name,
+                    ProductDescription=p.Product.Description,
+                    ProductImageUrl=p.Product.Image.Url,
+                    InventoryName=p.Inventory.Name,
+                    Price=p.Price,
+                    ListPrice=p.ListPrice,
+                    left=p.left,
+                    Stock=p.Stock,
+                    Date=p.Date,
+                    ExpireDate=p.ExpireDate,
+                });;
+
+                return Ok(packageDtos);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
-            }
-
-        }
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create(PackageDto viewModel)
-        {
-            if (ModelState.IsValid)
-            {
-                Package package = new()
-                {
-                    Date = viewModel.Date,
-                    ExpireDate = viewModel.ExpireDate,
-                    Stock = viewModel.Stock,
-                    Price = viewModel.Price,
-                    ListPrice = viewModel.ListPrice,
-                    ProductId = viewModel.ProductId,
-                    InventoryId = viewModel.InventoryId,
-                    
-                };
-
-                await _unitOfWork.Package.AddAsync(package);
-                await _unitOfWork.Save();
-                return Ok(viewModel);
-            }
-            else
-                return NotFound();
-        }
-
-
-        [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, p => p.Product, p => p.Inventory);
-            if (obj == null)
-                return NotFound();
-            else
-            {
-                _unitOfWork.Package.Delete(obj);
-                await _unitOfWork.Save();
-                return Ok();
+                _logger.LogError(ex, "Error getting packages");
+                return StatusCode(500, "Internal server error");
             }
         }
 
         [HttpGet("Details/{id}")]
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> GetPackageDetails(int id)
         {
-            var obj = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, p => p.Product, p => p.Inventory);
-            if (obj == null)
-                return NotFound();
-            else
-                return Ok(obj);
+            try
+            {
+                var package = await _unitOfWork.Package.FirstOrDefaultAsync(i => i.Id == id,
+                    p => p.Product, p => p.Inventory);
+
+                if (package == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(package);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error getting package details for id {id}");
+                return StatusCode(500, "Internal server error");
+            }
         }
-        // Search for package first then update it 
-        [HttpPost("Edit/{id}")]
-        public async Task<IActionResult> Edit(int id, PackageDto obj)
+
+        [HttpPost("CreatePackage")]
+        public async Task<IActionResult> CreatePackage([FromForm] PackageDto packageDto)
         {
-            var package = await _unitOfWork.Package.FirstOrDefaultAsync(u => u.Id == id, p => p.Product, p => p.Inventory);
-            package.Date = obj.Date;
-            package.ExpireDate = obj.ExpireDate;
-            package.Stock = obj.Stock;
-            package.Price = obj.Price;
-            package.ListPrice = obj.ListPrice;
-            package.ProductId = obj.ProductId;
-            package.Inventory.Id = obj.InventoryId;
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
 
-            _unitOfWork.Package.Update(package);
-            await _unitOfWork.Save();
-            return Ok(obj);
+                var package = _mapper.Map<Package>(packageDto);
 
+                await _unitOfWork.Package.AddAsync(package);
+                await _unitOfWork.Save();
+
+                return Ok(new 
+                {
+                    id = package.Id,
+                    ListPrice = package.ListPrice,
+                    Price = package.Price,
+                    Date = package.Date,
+                    ExpireDate = package.ExpireDate,
+                    Stock= package.Stock,
+                    Left=package.left
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating package");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPut("Edit/{id}")]
+        public async Task<IActionResult> UpdatePackage(int id, PackageDto packageDto)
+        {
+            try
+            {
+                var package = await _unitOfWork.Package.FirstOrDefaultAsync(i => i.Id == id);
+
+                if (package == null)
+                {
+                    return NotFound();
+                }
+
+                _mapper.Map(packageDto, package);
+
+                _unitOfWork.Package.Update(package);
+                await _unitOfWork.Save();
+
+                return Ok(package);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating package for id {id}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("Delete/{id}")]
+        public async Task<IActionResult> DeletePackage(int id)
+        {
+            try
+            {
+                var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.Id == id);
+
+                if (package == null)
+                {
+                    return NotFound();
+                }
+
+                _unitOfWork.Package.Delete(package);
+                await _unitOfWork.Save();
+
+                return Ok("The package has been deleted");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting package for id {id}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpPost("CreatePackages")]
+        public async Task<IActionResult> CreatePackages(List<PackageDto> packageDtos)
+        {
+            try
+            {
+                if (!ModelState.IsValid || packageDtos == null || !packageDtos.Any())
+                {
+                    return BadRequest("Invalid input data");
+                }
+
+                var packages = _mapper.Map<List<Package>>(packageDtos);
+
+                foreach (var package in packages)
+                {
+                    await _unitOfWork.Package.AddAsync(package);
+                }
+
+                await _unitOfWork.Save();
+
+                var response = packages.Select(package => new
+                {
+                    id = package.Id,
+                    ListPrice = package.ListPrice,
+                    Price = package.Price,
+                    Date = package.Date,
+                    ExpireDate = package.ExpireDate,
+                    Stock = package.Stock,
+                    Left = package.left
+                }).ToList();
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating packages");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
     }
 }
-

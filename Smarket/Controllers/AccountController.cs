@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smarket.Models;
 using Smarket.Models.Dtos;
+using Smarket.Models.DTOs;
 using Smarket.Services.IServices;
 using System.Security.Claims;
 
@@ -160,21 +161,21 @@ namespace Smarket.Controllers
         }
 
         [HttpGet("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDtoWithfullinfo dto)
         {
-            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(dto.Token) || string.IsNullOrWhiteSpace(dto.Email))
             {
                 return BadRequest("Invalid token or email.");
             }
 
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(dto.Email);
 
             if (user == null)
             {
                 return NotFound("User not found.");
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            var result = await _userManager.ConfirmEmailAsync(user, dto.Token);
 
             if (result.Succeeded)
             {

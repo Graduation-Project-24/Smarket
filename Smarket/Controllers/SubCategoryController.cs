@@ -51,7 +51,7 @@ namespace Smarket.Controllers
             return RedirectToAction("There is an Error while Deleting");
         }
 
-        [HttpPost("Edit")]
+        [HttpPut("Edit")]
         public async Task<IActionResult> Edit(int id, SubCategoryDto dto)
         {
             if (ModelState.IsValid)
@@ -66,7 +66,7 @@ namespace Smarket.Controllers
             return RedirectToAction("There is an Error while Deleting");
         }
 
-        [HttpPost("Delete")]
+        [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             if (ModelState.IsValid)
@@ -78,5 +78,31 @@ namespace Smarket.Controllers
             }
             return RedirectToAction("There is an Error while Deleting");
         }
+
+        [HttpPost("CreateMany")]
+        public async Task<IActionResult> Create(List<SubCategoryDto> dtos)
+        {
+            foreach (var dto in dtos)
+            {
+                var subCategory = new SubCategory
+                {
+                    Name = dto.Name,
+                    CategoryId = dto.CategoryId
+                };
+
+                if (ModelState.IsValid)
+                {
+                    await _unitOfWork.SubCategory.AddAsync(subCategory);
+                }
+                else
+                {
+                    return BadRequest("Invalid model state.");
+                }
+            }
+
+            await _unitOfWork.Save();
+            return Ok(dtos);
+        }
+
     }
 }

@@ -2,6 +2,7 @@
 using Smarket.DataAccess;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
+using Smarket.Models.DTOs;
 using Smarket.Models.ViewModels;
 using Smarket.Services.IServices;
 

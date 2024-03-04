@@ -1,5 +1,5 @@
 ﻿
-namespace Smarket.Models.ViewModels
+namespace Smarket.Models.DTOs
 {
     public class InventoryDto
     {

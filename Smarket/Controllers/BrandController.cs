@@ -24,14 +24,15 @@ namespace Smarket.Controllers
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<BrandDto>>> GetAllBrandsAsync()
+		public async Task<ActionResult<IEnumerable<BrandDtoWithImage>>> GetAllBrandsAsync()
 		{
 			try
 			{
 				var brands = await _unitOfWork.Brand.GetAllAsync(null,i => i.Image);
 
-				var brandDtos = brands.Select(b => new BrandDto
-				{
+				var brandDtos = brands.Select(b => new BrandDtoWithImage
+                {
+					Id = b.Id,
 					Name = b.Name,
 					ImageUrl = b.Image.Url
 				});
@@ -45,7 +46,7 @@ namespace Smarket.Controllers
 			}
 		}
 		[HttpGet("Details/{id:int}")]
-		public async Task<ActionResult<BrandDto>> GetBrandDetailsAsync(int id)
+		public async Task<ActionResult<BrandDtoWithImage>> GetBrandDetailsAsync(int id)
 		{
 			// Validate input
 			if (id <= 0)
@@ -60,8 +61,9 @@ namespace Smarket.Controllers
 					return NotFound();
 
 				// Map to DTO
-				var brandDetails = new BrandDto
+				var brandDetails = new BrandDtoWithImage
 				{
+					Id= brand.Id,
 					Name = brand.Name,
 					ImageUrl = brand.Image.Url
 				};
@@ -120,8 +122,9 @@ namespace Smarket.Controllers
 				return StatusCode(500, "Internal server error");
 			}
 		}
+       
 
-		[HttpPut("Edit/{id:int}")]
+        [HttpPut("Edit/{id:int}")]
 		public async Task<ActionResult> UpdateBrandAsync(int id, [FromForm] BrandDto updatedBrandDto)
 		{
 			// Validate input
@@ -213,5 +216,48 @@ namespace Smarket.Controllers
 				return StatusCode(500, "Internal server error");
 			}
 		}
-	}
+
+        [HttpDelete("DeleteAll")]
+        public async Task<ActionResult> DeleteAllBrandsAsync()
+        {
+            try
+            {
+                var brandsToDelete = await _unitOfWork.Brand.GetAllAsync();
+
+                if (!brandsToDelete.Any())
+                    return NotFound("No brands found to delete");
+
+                foreach (var brand in brandsToDelete)
+                {
+                    // Delete image
+                    if (brand.Image?.PublicId != null)
+                        await _imageService.DeletePhotoAsync(brand.Image.PublicId);
+
+					var products = await _unitOfWork.Product
+						.GetAllAsync(p => p.BrandId == brand.Id);
+
+                    foreach (var product in products)
+                    {
+                        product.BrandId = null;
+                        _unitOfWork.Product.Update(product);
+                    }
+
+                    _unitOfWork.Brand.Delete(brand);
+                }
+
+                await _unitOfWork.Save();
+
+                return Ok("All brands have been deleted");
+            }
+            catch (Exception ex)
+            {
+                // Log error
+                _logger.LogError(ex, "Error deleting brands");
+
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+    }
 }

@@ -2,9 +2,9 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Smarket.Models.DTOs
+namespace Smarket.Models.ViewModels
 {
-    public class ProductDto
+    public class ProductDtoWithoutForm
     {
         public string Name { get; set; }
         public string Description { get; set; }
@@ -12,7 +12,7 @@ namespace Smarket.Models.DTOs
         public int SubCategoryId { get; set; }
         public int XAxies { get; set; }
         public int YAxies { get; set; }
-        public IFormFile formFile { get; set; }
+        public string ImageUrl { get; set; }
 
 
 

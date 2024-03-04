@@ -36,11 +36,11 @@ namespace Smarket.Controllers
                     Id = p.Id,
                     Name = p.Name,
                     Description = p.Description,
-                    SubCategoryName = p.SubCategory != null ? p.SubCategory.Name : null,
-                    BrandName = p.Brand.Name != null ? p.Brand.Name : null,
-                    BrandId = p.Brand.Id,
-                    SubCategoryId = p.SubCategory.Id,
-                    ImageUrl = p.Image.Url
+                    SubCategoryName = p.SubCategory?.Name,
+                    BrandName = p.Brand?.Name,
+                    BrandId = p.Brand?.Id ?? 0, // assuming BrandId is of type int
+                    SubCategoryId = p.SubCategory?.Id ?? 0, // assuming SubCategoryId is of type int
+                    ImageUrl = p.Image?.Url
                 });
 
                 return Ok(productDtos);
@@ -51,6 +51,7 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
         [HttpGet("GetProductAI")]
         public async Task<ActionResult<IEnumerable<ProductDtoAxies>>> GetProductAI(int id)
         {
@@ -348,6 +349,73 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+/*
+        [HttpPost("CreateProducts")]
+        public async Task<IActionResult> CreateProducts(List<ProductDtoWithoutForm> productDtos)
+        {
+            if (!ModelState.IsValid || productDtos == null || productDtos.Count == 0)
+            {
+                return BadRequest("Invalid request or empty product list");
+            }
+
+            var products = new List<Models.Product>();
+            var productIds = new List<int>();
+
+            foreach (var productDto in productDtos)
+            {
+                try
+                {
+                    var product = new Models.Product
+                    {
+                        Name = productDto.Name,
+                        Description = productDto.Description,
+                        SubCategoryId = productDto.SubCategoryId,
+                        BrandId = productDto.BrandId,
+                        Image = new Image
+                        {
+                            PublicId = productDto.ImageUrl,
+                            Url = productDto.ImageUrl,
+                        },
+                        YAxies = productDto.YAxies,
+                        XAxies = productDto.XAxies,
+                    };
+
+                    products.Add(product);
+                    productIds.Add(product.Id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating product");
+                }
+            }
+
+            if (products.Count == 0)
+            {
+                return BadRequest("No valid products found in the request");
+            }
+
+            try
+            {
+                await _unitOfWork.Product.AddRangeAsync(products);
+                await _unitOfWork.Save();
+
+                return Ok(products.Select(product => new
+                {
+                    id = product.Id,
+                    Name = product.Name,
+                    Description = product.Description,
+                    SubCategoryId = product.SubCategoryId,
+                    BrandId = product.BrandId,
+                    ImageUrl = product.Image.Url,
+                }));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating products");
+                return StatusCode(500, "Internal server error");
+            }
+        }*/
+
 
 
 

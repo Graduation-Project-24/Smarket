@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.Dtos;
+using Smarket.Models.DTOs;
+using Stripe;
 
 
 
@@ -22,6 +24,30 @@ namespace Smarket.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _logger = logger;
+        }
+
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAllReviews()
+        {
+            try
+            {
+                var reviews = await _unitOfWork.UserReview.GetAllAsync(null,p=>p.Product,u=>u.User);
+
+                var reviewDtos = reviews.Select(p => new ReviewDto
+                {
+                    ProductId = p.ProductId,
+                    Rate = p.Rate,
+                    Comment = p.Comment,
+                    UserId = p.UserId
+                });
+                return Ok(reviewDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving reviews");
+                return StatusCode(500, "Internal server error");
+            }
         }
         // Smarket\Controllers\ReviewController.cs
 

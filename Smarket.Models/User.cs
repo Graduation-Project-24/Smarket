@@ -9,7 +9,7 @@ namespace Smarket.Models
         public DateTime DateOfBirth { get; set; }
         public string City { get; set; }
         public string State { get; set; }
-        public int ImageId { get; set; }
+        public int ImageId { get; set; } = 10;
         [AllowNull]
         public  Image Image { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }

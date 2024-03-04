@@ -11,6 +11,7 @@ namespace Smarket.Profiles
         public AutoMapperProfiles()
         {
             CreateMap<OrderItem, OrderItemDto>().ReverseMap();
+            CreateMap<Package, PackageDto>().ReverseMap();
         }
     }
 }
