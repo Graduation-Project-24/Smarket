@@ -87,6 +87,68 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        [HttpPost("CreateReviews")]
+        public async Task<IActionResult> CreateReviews([FromBody] List<ReviewDto> reviews)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                foreach (var obj in reviews)
+                {
+                    var product = await _unitOfWork.Product.FirstOrDefaultAsync(c => c.Id == obj.ProductId);
+
+                    UserReview review = new UserReview()
+                    {
+                        ProductId = obj.ProductId,
+                        Rate = obj.Rate,
+                        Comment = obj.Comment,
+                        UserId = obj.UserId
+                    };
+
+                    await _unitOfWork.UserReview.AddAsync(review);
+                }
+
+                await _unitOfWork.Save();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating review");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("DeleteAll")]
+        public async Task<IActionResult> DeleteAllReviews()
+        {
+            try
+            {
+                // Retrieve all reviews from the database
+                var reviews = await _unitOfWork.UserReview.GetAllAsync();
+
+                // Check if there are any reviews to delete
+                if (reviews == null || !reviews.Any())
+                {
+                    return NotFound("No reviews found");
+                }
+
+                // Delete all reviews
+                _unitOfWork.UserReview.DeleteRange(reviews);
+                await _unitOfWork.Save();
+
+                return Ok("All reviews deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting reviews");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
 
 
 

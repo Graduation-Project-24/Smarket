@@ -34,8 +34,8 @@ namespace Smarket.Controllers
                 {
 					Id = b.Id,
 					Name = b.Name,
-					ImageUrl = b.Image.Url
-				});
+                    Image = new { Url = b.Image.Url }
+                });
 
 				return Ok(brandDtos);
 			}
@@ -65,8 +65,8 @@ namespace Smarket.Controllers
 				{
 					Id= brand.Id,
 					Name = brand.Name,
-					ImageUrl = brand.Image.Url
-				};
+                    Image = new { Url = brand.Image.Url }
+                };
 
 				return Ok(brandDetails);
 
