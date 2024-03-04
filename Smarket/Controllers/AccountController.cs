@@ -85,6 +85,81 @@ namespace Smarket.Controllers
         }
 
 
+        [HttpPost("Registerers")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> Registerers(IEnumerable<RegisterDto> registerDtos)
+        {
+            try
+            {
+                _logger.LogInformation("Registration attempt for {Count} users", registerDtos.Count());
+
+                var userDtos = new List<UserDto>();
+
+                foreach (var registerDto in registerDtos)
+                {
+                    if (await _userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
+                    {
+                        _logger.LogWarning("Email {Email} is already taken.", registerDto.Email);
+                        continue; // Skip this user and continue with the next one
+                    }
+
+                    var user = new User
+                    {
+                        UserName = registerDto.Email.Substring(0, registerDto.Email.IndexOf("@")),
+                        FirstName = registerDto.FirstName,
+                        LastName = registerDto.LastName,
+                        DateOfBirth = registerDto.DateOfBirth,
+                        Email = registerDto.Email,
+                        PhoneNumber = registerDto.PhoneNumber,
+                        EmailConfirmed = false
+                    };
+
+                    var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+                    if (!result.Succeeded)
+                    {
+                        _logger.LogError("Failed to register user: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+                        continue; // Skip this user and continue with the next one
+                    }
+
+                    await _userManager.AddToRoleAsync(user, "User");
+
+/*                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);*/
+
+/*                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme);
+
+                    await _emailService.EmailSender(user.Email, "Confirm Your Email", confirmationLink);*/
+
+                    _logger.LogInformation("User registered successfully: {Email}", user.Email);
+
+                    userDtos.Add(new UserDto
+                    {
+                        UserName = user.UserName,
+                        Token = await _tokenService.CreateToken(user),
+                    });
+                }
+
+                return userDtos;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during user registration.");
+                return StatusCode(500, "An error occurred during user registration.");
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
