@@ -196,5 +196,24 @@ namespace Smarket.Controllers
             }
         }
 
+        [HttpDelete("DeleteAll")]
+        public async Task<IActionResult> DeleteAllPackages()
+        {
+            try
+            {
+                var packages = await _unitOfWork.Package.GetAllAsync();
+
+                _unitOfWork.Package.DeleteRange(packages);
+                await _unitOfWork.Save();
+
+                return Ok("All packages have been deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting packages");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
     }
 }

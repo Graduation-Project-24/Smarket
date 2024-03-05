@@ -6,6 +6,7 @@ using Smarket.Models.DTOs;
 using Smarket.Models.ViewModels;
 using Smarket.Services.IServices;
 using Stripe;
+using System.Data.SqlTypes;
 
 namespace Smarket.Controllers
 {
@@ -349,55 +350,46 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-/*
-        [HttpPost("CreateProducts")]
-        public async Task<IActionResult> CreateProducts(List<ProductDtoWithoutForm> productDtos)
+
+        [HttpDelete("DeleteAll")]
+        public async Task<IActionResult> DeleteAllProducts()
         {
-            if (!ModelState.IsValid || productDtos == null || productDtos.Count == 0)
-            {
-                return BadRequest("Invalid request or empty product list");
-            }
-
-            var products = new List<Models.Product>();
-            var productIds = new List<int>();
-
-            foreach (var productDto in productDtos)
-            {
-                try
-                {
-                    var product = new Models.Product
-                    {
-                        Name = productDto.Name,
-                        Description = productDto.Description,
-                        SubCategoryId = productDto.SubCategoryId,
-                        BrandId = productDto.BrandId,
-                        Image = new Image
-                        {
-                            PublicId = productDto.ImageUrl,
-                            Url = productDto.ImageUrl,
-                        },
-                        YAxies = productDto.YAxies,
-                        XAxies = productDto.XAxies,
-                    };
-
-                    products.Add(product);
-                    productIds.Add(product.Id);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error creating product");
-                }
-            }
-
-            if (products.Count == 0)
-            {
-                return BadRequest("No valid products found in the request");
-            }
-
             try
             {
-                await _unitOfWork.Product.AddRangeAsync(products);
+                // Retrieve all products from the database
+                var products = await _unitOfWork.Product.GetAllAsync();
+
+                _unitOfWork.Product.DeleteRange(products);
                 await _unitOfWork.Save();
+
+                return Ok("All products have been deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting products");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+        /*[HttpPut("Update")]
+        public async Task<IActionResult> UpdateProducts()
+        {
+            try
+            {
+                var products = await _unitOfWork.Product.GetAllAsync(null, i => i.Image);
+                string substringToRemove = "images/W/WEBP_402378-T1/";
+                string substringToRemove2 = "images/W/WEBP_402378-T2/";
+
+                foreach (var product in products)
+                {
+                    product.Image.Url = product.Image.Url.Replace(substringToRemove, "");
+                    product.Image.PublicId = product.Image.PublicId.Replace(substringToRemove, "");
+                    product.Image.Url = product.Image.Url.Replace(substringToRemove2, "");
+                    product.Image.PublicId = product.Image.PublicId.Replace(substringToRemove2, "");
+
+
+                }
+
+                await _unitOfWork.Save(); 
 
                 return Ok(products.Select(product => new
                 {
@@ -406,15 +398,83 @@ namespace Smarket.Controllers
                     Description = product.Description,
                     SubCategoryId = product.SubCategoryId,
                     BrandId = product.BrandId,
-                    ImageUrl = product.Image.Url,
+                    // You may include other properties here if needed
                 }));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating products");
+                _logger.LogError(ex, "Error updating products");
                 return StatusCode(500, "Internal server error");
             }
-        }*/
+        }
+*/
+
+        /*
+                [HttpPost("CreateProducts")]
+                public async Task<IActionResult> CreateProducts(List<ProductDtoWithoutForm> productDtos)
+                {
+                    if (!ModelState.IsValid || productDtos == null || productDtos.Count == 0)
+                    {
+                        return BadRequest("Invalid request or empty product list");
+                    }
+
+                    var products = new List<Models.Product>();
+                    var productIds = new List<int>();
+
+                    foreach (var productDto in productDtos)
+                    {
+                        try
+                        {
+                            var product = new Models.Product
+                            {
+                                Name = productDto.Name,
+                                Description = productDto.Description,
+                                SubCategoryId = productDto.SubCategoryId,
+                                BrandId = productDto.BrandId,
+                                Image = new Image
+                                {
+                                    PublicId = productDto.ImageUrl,
+                                    Url = productDto.ImageUrl,
+                                },
+                                YAxies = productDto.YAxies,
+                                XAxies = productDto.XAxies,
+                            };
+
+                            products.Add(product);
+                            productIds.Add(product.Id);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error creating product");
+                        }
+                    }
+
+                    if (products.Count == 0)
+                    {
+                        return BadRequest("No valid products found in the request");
+                    }
+
+                    try
+                    {
+                        await _unitOfWork.Product.AddRangeAsync(products);
+                        await _unitOfWork.Save();
+
+                        return Ok(products.Select(product => new
+                        {
+                            id = product.Id,
+                            Name = product.Name,
+                            Description = product.Description,
+                            SubCategoryId = product.SubCategoryId,
+                            BrandId = product.BrandId,
+                            ImageUrl = product.Image.Url,
+                        }));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error creating products");
+                        return StatusCode(500, "Internal server error");
+                    }
+                }*/
 
 
 
