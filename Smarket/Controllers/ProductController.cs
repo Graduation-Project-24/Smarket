@@ -370,44 +370,84 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-        /*[HttpPut("Update")]
-        public async Task<IActionResult> UpdateProducts()
+      /*  [HttpPut("Edit")]
+        public async Task<IActionResult> UpdateProducts(List<ProductDtoWithCBNames> productDtos)
         {
+            if (!ModelState.IsValid || productDtos == null || productDtos.Count == 0)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                var products = await _unitOfWork.Product.GetAllAsync(null, i => i.Image);
-                string substringToRemove = "images/W/WEBP_402378-T1/";
-                string substringToRemove2 = "images/W/WEBP_402378-T2/";
-
-                foreach (var product in products)
+                foreach (var productDto in productDtos)
                 {
-                    product.Image.Url = product.Image.Url.Replace(substringToRemove, "");
-                    product.Image.PublicId = product.Image.PublicId.Replace(substringToRemove, "");
-                    product.Image.Url = product.Image.Url.Replace(substringToRemove2, "");
-                    product.Image.PublicId = product.Image.PublicId.Replace(substringToRemove2, "");
 
+                    var id = productDto.Id;
+                    var brand = await _unitOfWork.Brand.FirstOrDefaultAsync(b => b.Name == productDto.BrandName);
+                    var product = await _unitOfWork.Product.FirstOrDefaultAsync(p => p.Id == id);
 
+                    if (product == null)
+                    {
+                        return NotFound($"Product with ID {id} not found");
+                    }
+                    product.BrandId = brand.Id;
+                    
+
+                    _unitOfWork.Product.Update(product);
                 }
 
-                await _unitOfWork.Save(); 
+                await _unitOfWork.Save();
 
-                return Ok(products.Select(product => new
-                {
-                    id = product.Id,
-                    Name = product.Name,
-                    Description = product.Description,
-                    SubCategoryId = product.SubCategoryId,
-                    BrandId = product.BrandId,
-                    // You may include other properties here if needed
-                }));
+                return Ok(productDtos);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating products");
                 return StatusCode(500, "Internal server error");
             }
-        }
-*/
+        }*/
+
+
+
+        /*        [HttpPut("Update")]
+                public async Task<IActionResult> UpdateProducts()
+                {
+                    try
+                    {
+                        var products = await _unitOfWork.Product.GetAllAsync(null, i => i.Image);
+                        string substringToRemove = "images/W/WEBP_402378-T1/";
+                        string substringToRemove2 = "images/W/WEBP_402378-T2/";
+
+                        foreach (var product in products)
+                        {
+                            product.Image.Url = product.Image.Url.Replace(substringToRemove, "");
+                            product.Image.PublicId = product.Image.PublicId.Replace(substringToRemove, "");
+                            product.Image.Url = product.Image.Url.Replace(substringToRemove2, "");
+                            product.Image.PublicId = product.Image.PublicId.Replace(substringToRemove2, "");
+
+
+                        }
+
+                        await _unitOfWork.Save();
+
+                        return Ok(products.Select(product => new
+                        {
+                            id = product.Id,
+                            Name = product.Name,
+                            Description = product.Description,
+                            SubCategoryId = product.SubCategoryId,
+                            BrandId = product.BrandId,
+                            // You may include other properties here if needed
+                        }));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error updating products");
+                        return StatusCode(500, "Internal server error");
+                    }
+                }
+        */
 
         /*
                 [HttpPost("CreateProducts")]

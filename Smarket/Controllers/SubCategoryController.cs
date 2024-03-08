@@ -79,7 +79,7 @@ namespace Smarket.Controllers
             return RedirectToAction("There is an Error while Deleting");
         }
 
-        [HttpPost("CreateMany")]
+    /*    [HttpPost("CreateMany")]
         public async Task<IActionResult> Create(List<SubCategoryDto> dtos)
         {
             foreach (var dto in dtos)
@@ -102,7 +102,7 @@ namespace Smarket.Controllers
 
             await _unitOfWork.Save();
             return Ok(dtos);
-        }
+        }*/
 
     }
 }

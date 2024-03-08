@@ -122,7 +122,7 @@ namespace Smarket.Controllers
             }
         }
 
-        [HttpDelete("DeleteAll")]
+       /* [HttpDelete("DeleteAll")]
         public async Task<IActionResult> DeleteAllReviews()
         {
             try
@@ -148,7 +148,7 @@ namespace Smarket.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
+*/
 
 
 

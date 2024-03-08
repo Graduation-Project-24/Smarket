@@ -157,7 +157,7 @@ namespace Smarket.Controllers
             }
         }
 
-        [HttpPost("CreatePackages")]
+       /* [HttpPost("CreatePackages")]
         public async Task<IActionResult> CreatePackages(List<PackageDto> packageDtos)
         {
             try
@@ -213,7 +213,7 @@ namespace Smarket.Controllers
                 _logger.LogError(ex, "Error deleting packages");
                 return StatusCode(500, "Internal server error");
             }
-        }
+        }*/
 
     }
 }

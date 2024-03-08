@@ -172,6 +172,7 @@ namespace Smarket.Controllers
 				return StatusCode(500, "Internal server error");
 			}
 		}
+
 		[HttpDelete("Delete/{id:int}")]
 		public async Task<ActionResult> DeleteBrandAsync(int id)
 		{
@@ -217,7 +218,7 @@ namespace Smarket.Controllers
 			}
 		}
 
-        [HttpDelete("DeleteAll")]
+      /*  [HttpDelete("DeleteAll")]
         public async Task<ActionResult> DeleteAllBrandsAsync()
         {
             try
@@ -256,7 +257,7 @@ namespace Smarket.Controllers
 
                 return StatusCode(500, "Internal server error");
             }
-        }
+        }*/
 
 
     }
