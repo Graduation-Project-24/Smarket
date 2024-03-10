@@ -373,7 +373,7 @@ namespace Smarket.Controllers
             }
         }
 
-        [HttpDelete("DeleteAll")]
+/*        [HttpDelete("DeleteAll")]
         public async Task<IActionResult> DeleteAllProducts()
         {
             try
@@ -391,7 +391,7 @@ namespace Smarket.Controllers
                 _logger.LogError(ex, "Error deleting products");
                 return StatusCode(500, "Internal server error");
             }
-        }
+        }*/
       /*  [HttpPut("Edit")]
         public async Task<IActionResult> UpdateProducts(List<ProductDtoWithCBNames> productDtos)
         {
