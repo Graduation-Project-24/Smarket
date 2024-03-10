@@ -30,7 +30,7 @@ namespace Smarket.Controllers
         {
             try
             {
-                var products = await _unitOfWork.Product.GetAllAsync(null, p => p.SubCategory, p => p.Brand, p => p.Image);
+                var products = (await _unitOfWork.Product.GetAllAsync(null, p => p.SubCategory, p => p.Brand, p => p.Image)).Take(100).ToList();
 
                 var productDtos = products.Select(p => new ProductDtoWithCBNames
                 {
@@ -117,7 +117,7 @@ namespace Smarket.Controllers
         {
             try
             {
-                var products = await _unitOfWork.Product.GetAllAsync();
+                var products = (await _unitOfWork.Product.GetAllAsync()).Take(100).ToList();
 
                 var productDtos = products.Select(p => new ProductDtoAllProductAxies
                 {
@@ -144,23 +144,45 @@ namespace Smarket.Controllers
         {
             try
             {
-                var product = await _unitOfWork.Product.FirstOrDefaultAsync(p => p.Id == id, p => p.SubCategory, p => p.Brand, p => p.Image);
+/*                var product = await _unitOfWork.Product.FirstOrDefaultAsync(p => p.Id == id, p => p.SubCategory, p => p.Brand, p => p.Image, r => r.Reviews);
+*/
+                var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.ProductId == id, p=>p.Product.Image, p => p.Product.Brand,
+                    p => p.Product.SubCategory, p => p.Product.Reviews);
 
-                if (product == null)
+                var threeProducts = (await _unitOfWork.Product.GetAllAsync(null,p=>p.Image)).Take(3).ToList();
+
+                var ReviewWithUsers = await _unitOfWork.UserReview.GetAllAsync(p=>p.ProductId==id,i=>i.User.Image);
+
+                if (package == null)
                 {
                     return NotFound();
                 }
 
-                var productDto = new ProductDtoWithCBNames
+                var productDto = new ProductDetailsPageMobile
                 {
-                    Id= product.Id,
-                    Name = product.Name,
-                    Description = product.Description,
-                    SubCategoryName = product.SubCategory.Name,
-                    BrandName = product.Brand.Name,
-                    ImageUrl = product.Image.Url,
-                    BrandId = product.Brand.Id,
-                    SubCategoryId = product.SubCategory.Id,
+                    Id= package.Product.Id,
+                    Name = package.Product.Name,
+                    Description = package.Product.Description,
+                    SubCategoryName = package.Product.SubCategory.Name,
+                    BrandName = package.Product.Brand.Name,
+                    price = package.Price,
+                    Reviews = ReviewWithUsers.Select(p => new ReviewDtoProductDetails
+                    {
+                        Comment = p.Comment,
+                        ProductId = p.Id,
+                        Rate = p.Rate,
+                        UserId = p.UserId,
+                        ImageUrl = p.User.Image.Url,
+                        UserName = p.User.UserName
+                    }).ToList(),
+                    productDtoFilters = threeProducts.Select(p=> new ProductDtoFilter
+                    {
+                        Name = p.Name,
+                        ImageUrl=p.Image.Url,
+                    }),
+                    ImageUrl = package.Product.Image.Url,
+                    BrandId = package.Product.Brand.Id,
+                    SubCategoryId = package.Product.SubCategory.Id,
                 };
 
                 return Ok(productDto);

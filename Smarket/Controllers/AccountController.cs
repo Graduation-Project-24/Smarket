@@ -307,7 +307,7 @@ namespace Smarket.Controllers
 
 
 
-        [HttpPost("forgot-password")]
+        [HttpPost("forgotpassword")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -326,17 +326,16 @@ namespace Smarket.Controllers
             return Ok("Reset password link sent to your email.");
         }
 
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(string Email, string Token)
+        [HttpPost("resetpassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
         {
-            var user = await _userManager.FindByEmailAsync(Email);
+            var user = await _userManager.FindByEmailAsync(dto.Email);
 
             if (user == null)
             {
                 return BadRequest("User not found.");
             }
-            var NewPassword = "123456a";
-            var result = await _userManager.ResetPasswordAsync(user, Token, NewPassword);
+            var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
 
             if (result.Succeeded)
             {

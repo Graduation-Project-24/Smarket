@@ -23,9 +23,46 @@ namespace Smarket.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                    new Claim(ClaimTypes.Email, user.Email), // assuming user's email is also required
             };
+
+            if (!string.IsNullOrEmpty(user.PhoneNumber))
+            {
+                claims.Add(new Claim(ClaimTypes.MobilePhone, user.PhoneNumber));
+            }
+
+            if (!string.IsNullOrEmpty(user.LastName))
+            {
+                claims.Add(new Claim(ClaimTypes.Surname, user.LastName));
+            }
+
+            if (!string.IsNullOrEmpty(user.FirstName))
+            {
+                claims.Add(new Claim(ClaimTypes.GivenName, user.FirstName));
+            }
+
+            if (!string.IsNullOrEmpty(user.City))
+            {
+                claims.Add(new Claim("City", user.City));
+            }
+
+            if (!string.IsNullOrEmpty(user.State))
+            {
+                claims.Add(new Claim("State", user.State));
+            }
+
+            if (user.Image != null && !string.IsNullOrEmpty(user.Image.Url))
+            {
+                claims.Add(new Claim("ImageUrl", user.Image.Url));
+            }
+
+
+            if (user.DateOfBirth != null)
+            {
+                claims.Add(new Claim(ClaimTypes.DateOfBirth, user.DateOfBirth.ToString(), ClaimValueTypes.Date));
+            }
 
             var roles = await _userManager.GetRolesAsync(user);
 
