@@ -53,6 +53,45 @@ namespace Smarket.Controllers
             }
         }
 
+
+
+        [HttpGet("GetProductsBySearch")]
+        public async Task<ActionResult<IEnumerable<ProductDtoWithCBNames>>> GetProductsBySearch(string searchTerm = null)
+        {
+            try
+            {
+                var productsQuery = _unitOfWork.Product.GetAllAsync(
+                    searchTerm != null ? p => p.Name.Contains(searchTerm) : null,
+                    p => p.SubCategory,
+                    p => p.Brand,
+                    p => p.Image);
+
+                var products = (await productsQuery).Take(10).ToList();
+
+                var productDtos = products.Select(p => new ProductDtoWithCBNames
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    SubCategoryName = p.SubCategory?.Name,
+                    BrandName = p.Brand?.Name,
+                    BrandId = p.Brand?.Id ?? 0, 
+                    SubCategoryId = p.SubCategory?.Id ?? 0, 
+                    ImageUrl = p.Image?.Url
+                });
+
+                return Ok(productDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting products");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+
+
         [HttpGet("GetProductAI")]
         public async Task<ActionResult<IEnumerable<ProductDtoAxies>>> GetProductAI(int id)
         {
