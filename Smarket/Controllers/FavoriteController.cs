@@ -35,17 +35,24 @@ namespace Smarket.Controllers
                     return NotFound("User not found");
                 }
 
-                var favorites = await _unitOfWork.UserFav.GetAllAsync(f => f.UserId == user.Id, c=>c.Product);
+                var favorites = await _unitOfWork.UserFav.GetAllAsync(f => f.UserId == user.Id, c=>c.Product.Image,c=>c.Product.Reviews);
+
+
                 if (favorites == null)
                     return NotFound();
 
                 var favoriteDto = favorites.Select(c => new FavoriteDto
                 {
                     ProductName = c.Product.Name,
+                    ImageUrl =c.Product.Image.Url.ToString(),
                     ProductId = c.ProductId,
                     Description = c.Product.Description,
+                    Reviews = c.Product.Reviews.Select(p => new ReviewDtoRateOnly
+                    {
+                        Rate = p.Rate,
+                    }).ToList()
 
-                   
+
                 });
                 return Ok(favoriteDto);
             }

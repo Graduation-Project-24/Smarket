@@ -45,19 +45,13 @@ namespace Smarket.Services
 
             if (!string.IsNullOrEmpty(user.City))
             {
-                claims.Add(new Claim("City", user.City));
-            }
-
-            if (!string.IsNullOrEmpty(user.State))
-            {
-                claims.Add(new Claim("State", user.State));
+                claims.Add(new Claim(ClaimTypes.StreetAddress, user.City + user.State));
             }
 
             if (user.Image != null && !string.IsNullOrEmpty(user.Image.Url))
             {
-                claims.Add(new Claim("ImageUrl", user.Image.Url));
+                claims.Add(new Claim("imageUrl", user.Image.Url));
             }
-
 
             if (user.DateOfBirth != null)
             {
@@ -66,7 +60,9 @@ namespace Smarket.Services
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            claims.AddRange(roles.Select(
+                role => new Claim(ClaimTypes.Role, role)
+                ));
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 

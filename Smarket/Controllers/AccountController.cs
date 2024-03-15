@@ -85,7 +85,7 @@ namespace Smarket.Controllers
         }
 
 
-        [HttpPost("Registerers")]
+/*        [HttpPost("Registerers")]
         public async Task<ActionResult<IEnumerable<UserDto>>> Registerers(IEnumerable<RegisterDto> registerDtos)
         {
             try
@@ -123,11 +123,11 @@ namespace Smarket.Controllers
 
                     await _userManager.AddToRoleAsync(user, "User");
 
-/*                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);*/
+*//*                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);*/
 
 /*                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new { token, email = user.Email }, Request.Scheme);
 
-                    await _emailService.EmailSender(user.Email, "Confirm Your Email", confirmationLink);*/
+                    await _emailService.EmailSender(user.Email, "Confirm Your Email", confirmationLink);*//*
 
                     _logger.LogInformation("User registered successfully: {Email}", user.Email);
 
@@ -145,18 +145,7 @@ namespace Smarket.Controllers
                 _logger.LogError(ex, "An error occurred during user registration.");
                 return StatusCode(500, "An error occurred during user registration.");
             }
-        }
-
-
-
-
-
-
-
-
-
-
-
+        }*/
 
 
 
@@ -304,7 +293,73 @@ namespace Smarket.Controllers
             return BadRequest("Failed to update user");
         }
 
+        [HttpGet("ProfileData")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> ProfileData()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
 
+            // Check if user has uploaded a profile image
+            string profileImageUrl = string.IsNullOrEmpty(user.Image?.Url) ? null : user.Image.Url.ToString();
+
+            return Ok(new
+            {
+                Name = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ProfileImage = profileImageUrl,
+                Email = user.Email,
+                City = user.City,
+                State = user.State,
+                Birthdate = user.DateOfBirth
+            });
+
+        }
+        [HttpPut]
+        [Route("EditUserV2")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> EditUserV2(EditUserDtoFewData dto)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+/*            var image = await _imageService.AddPhotoAsync(dto.formFile);
+
+            var cloudImage = new Image
+            {
+                PublicId = image.PublicId,
+                Url = image.Url.ToString(),
+            };*/
+
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+/*            user.Image = cloudImage;*/
+            user.PhoneNumber = dto.PhoneNumber;
+            user.City = dto.City;
+            user.State = dto.State;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok(new
+                {
+                    Name = user.UserName,
+                    Email = user.Email,
+                    Token = await _tokenService.CreateToken(user),
+
+                    /*                    Image = cloudImage.Url.ToString(),*/
+                });
+            }
+            return BadRequest("Failed to update user");
+        }
 
 
         [HttpPost("forgotpassword")]
