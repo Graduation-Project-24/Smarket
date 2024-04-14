@@ -60,11 +60,26 @@ namespace Smarket.Controllers
         }
         [HttpGet]
         [Route("GetShoppingCartbyUser")]
-        public async Task<IActionResult> GetShoppingCartbyUser(int id)
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetShoppingCartbyUser()
         {
-            var user = await _unitOfWork.CartItem.GetAllAsync(x => x.UserId == id);
+            var realuser = await _userManager.GetUserAsync(User);
+            var items = await _unitOfWork.CartItem.GetAllAsync(x => x.UserId == realuser.Id, p => p.Package.Product.Image);
 
-            return Ok(user);
+            var shoppingCartDto = new ShoppingCartDto
+            {
+                Username = realuser.UserName, 
+                Packages = items.Select(item => new PackageDtoForCart
+                {
+                    PackageId=item.PackageId,
+                    ListPrice = item.Package.ListPrice,
+                    Price = item.Package.Price,
+                    ProductImageUrl = item.Package.Product.Image.Url.ToString(),
+                    ProductName = item.Package.Product.Name,
+                }).ToList()
+            };
+
+            return Ok(shoppingCartDto);
         }
 
         [HttpPost]

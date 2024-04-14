@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Smarket.Models;
@@ -21,6 +22,8 @@ namespace Smarket.Services
 
         public async Task<string> CreateToken(User user)
         {
+            user = await _userManager.Users.Include(u => u.Image).SingleOrDefaultAsync(u => u.Id == user.Id);
+
             var claims = new List<Claim>
             {
                     new Claim(JwtRegisteredClaimNames.NameId, user.Id.ToString()),

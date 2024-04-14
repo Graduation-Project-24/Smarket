@@ -266,6 +266,68 @@ namespace Smarket.Controllers
             }
         }
 
+
+        [HttpGet("GetProductDetailsForWeb/{id}")]
+        public async Task<IActionResult> GetProductDetailsForWeb(int id)
+        {
+            try
+            {
+                var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.ProductId == id, p => p.Product.Image, p => p.Product.Brand,
+                    p => p.Product.SubCategory, p => p.Product.Reviews);
+
+                var threeProducts = (await _unitOfWork.Package.GetAllAsync(null, p => p.Product.Image, p => p.Product.Brand,p=>p.Product.SubCategory)).Take(4).ToList();
+
+                var ReviewWithUsers = await _unitOfWork.UserReview.GetAllAsync(p => p.ProductId == id, i => i.User.Image);
+
+                if (package == null)
+                {
+                    return NotFound();
+                }
+
+                var productDto = new ProductDetailsDtoForWeb
+                {
+                    Id = package.Product.Id,
+                    Name = package.Product.Name,
+                    Left = package.left,
+                    Description = package.Product.Description,
+                    SubCategoryName = package.Product.SubCategory.Name,
+                    BrandName = package.Product.Brand.Name,
+                    price = package.Price,
+                    Reviews = ReviewWithUsers.Select(p => new ReviewDtoProductDetails
+                    {
+                        Comment = p.Comment,
+                        ProductId = p.ProductId,
+                        Rate = p.Rate,
+                        UserId = p.UserId,
+                        ImageUrl = p.User.Image.Url,
+                        UserName = p.User.UserName
+                    }).ToList(),
+                    productDtoFilters = threeProducts.Select(p => new ProductDtoFilter
+                    {
+                        
+                        ProductId = p.Product.Id,
+                        Price =p.Price,
+                        Description= p.Product.Description,
+                        SubCategoryName = p.Product.SubCategory.Name,
+                        BrandName= p.Product.Brand.Name,
+                        Name = p.Product.Name,
+                        ImageUrl = p.Product.Image.Url,
+                    }),
+                    ImageUrl = package.Product.Image.Url,
+                    BrandId = package.Product.Brand.Id,                
+                };
+
+                return Ok(productDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error getting product {id} details");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+
+
         // Smarket\Controllers\ProductController.cs
 
         [HttpPost("Create")]
