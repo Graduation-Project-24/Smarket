@@ -37,6 +37,9 @@ namespace Smarket.Controllers
 
                 var favorites = await _unitOfWork.UserFav.GetAllAsync(f => f.UserId == user.Id, c=>c.Product.Image,c=>c.Product.Reviews);
 
+                var productIds = favorites.Select(f => f.ProductId).ToList();
+
+                var packages = await _unitOfWork.Package.GetAllAsync(p => productIds.Contains(p.ProductId));
 
                 if (favorites == null)
                     return NotFound();
@@ -50,8 +53,8 @@ namespace Smarket.Controllers
                     Reviews = c.Product.Reviews.Select(p => new ReviewDtoRateOnly
                     {
                         Rate = p.Rate,
-                    }).ToList()
-
+                    }).ToList(),
+                    Price = packages.FirstOrDefault(p => p.ProductId == c.ProductId)?.Price ?? 0
 
                 });
                 return Ok(favoriteDto);
