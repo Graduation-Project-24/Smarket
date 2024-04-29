@@ -83,6 +83,18 @@ namespace Smarket.Controllers
                     return NotFound("User not found");
                 }
                 var product = await _unitOfWork.Product.FirstOrDefaultAsync(c => c.Id == obj.ProductId);
+                var favitem = await _unitOfWork.UserFav.GetAllAsync(c => c.UserId == user.Id);
+
+                if (favitem != null)
+                {
+                    foreach (var item in favitem)
+                    {
+                        if (item.ProductId == product.Id)
+                        {
+                            return Ok(new { Message = "This Product already in Favourite list" });
+                        }
+                    }
+                }
 
                 UserFav fav = new UserFav()
                 {
@@ -92,7 +104,7 @@ namespace Smarket.Controllers
 
                 await _unitOfWork.UserFav.AddAsync(fav);
                 await _unitOfWork.Save();
-                return Ok();
+                return Ok(new { Message = "Favourite added to favourite list successfully" });
             }
             catch (Exception ex)
             {
@@ -137,5 +149,29 @@ namespace Smarket.Controllers
             }
         }
 
-    }
+        [HttpGet("CheckFavorite")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> CheckFavorite(int productId)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                var favorite = await _unitOfWork.UserFav.FirstOrDefaultAsync(f => f.ProductId == productId && f.UserId == user.Id);
+
+                return Ok(favorite != null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking favorite");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+    
+
+}
 }

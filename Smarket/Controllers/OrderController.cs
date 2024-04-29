@@ -58,28 +58,37 @@ namespace Smarket.Controllers
 
             return Ok(user);
         }
-        [HttpGet]
-        [Route("GetShoppingCartbyUser")]
+        [HttpGet("GetShoppingCartbyUser")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetShoppingCartbyUser()
         {
             var realuser = await _userManager.GetUserAsync(User);
             var items = await _unitOfWork.CartItem.GetAllAsync(x => x.UserId == realuser.Id, p => p.Package.Product.Image);
-
-            var shoppingCartDto = new ShoppingCartDto
+            try
             {
-                Username = realuser.UserName, 
-                Packages = items.Select(item => new PackageDtoForCart
+                var shoppingCartDto = new ShoppingCartDto
                 {
-                    PackageId=item.PackageId,
-                    ListPrice = item.Package.ListPrice,
-                    Price = item.Package.Price,
-                    ProductImageUrl = item.Package.Product.Image.Url.ToString(),
-                    ProductName = item.Package.Product.Name,
-                }).ToList()
-            };
+                    Username = realuser.UserName,
+                    Packages = items.Select(item => new PackageDtoForCart
+                    {
+                        PackageId = item.PackageId,
+                        ListPrice = item.Package.ListPrice,
+                        Price = item.Package.Price,
+                        ProductImageUrl = item.Package.Product.Image.Url.ToString(),
+                        ProductName = item.Package.Product.Name,
+                        Count = item.Quantity
 
-            return Ok(shoppingCartDto);
+                    }).ToList()
+                };
+                return Ok(shoppingCartDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+
+            
         }
 
         [HttpPost]
@@ -98,17 +107,32 @@ namespace Smarket.Controllers
             {
                 return NotFound("User not found");
             }
+            var product = await _unitOfWork.Product.FirstOrDefaultAsync(c=>c.Id==addToCartDto.ProductId);
 
-            var package = await _unitOfWork.Package.FirstOrDefaultAsync(c => c.Id == addToCartDto.PackageId);
+            var package = await _unitOfWork.Package.FirstOrDefaultAsync(c => c.ProductId ==product.Id);
             if (package == null)
             {
                 return NotFound("Product not found");
+            }
+            var cartItemFound = await _unitOfWork.CartItem.GetAllAsync(c=>c.UserId== user.Id);
+            if (cartItemFound != null)
+            {
+                foreach (var item in cartItemFound)
+                {
+                    if (item.PackageId == package.Id)
+                    {
+                        item.Quantity++;
+                        _unitOfWork.CartItem.Update(item);
+                        await _unitOfWork.Save();
+                        return Ok(new { Message = "Product Have increment in Cart" });
+                    }
+                }
             }
 
             var cartItem = new CartItem
             {
                 Quantity = addToCartDto.Quantity,
-                PackageId = addToCartDto.PackageId,
+                PackageId = package.Id,
                 UserId = user.Id,
             };
 

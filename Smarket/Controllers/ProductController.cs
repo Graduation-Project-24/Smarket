@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Smarket.DataAccess.Repository.IRepository;
 using Smarket.Models;
 using Smarket.Models.Dtos;
 using Smarket.Models.DTOs;
 using Smarket.Models.ViewModels;
 using Smarket.Services.IServices;
-using Stripe;
-using System.Data.SqlTypes;
 
 namespace Smarket.Controllers
 {
@@ -221,7 +220,22 @@ namespace Smarket.Controllers
                 var package = await _unitOfWork.Package.FirstOrDefaultAsync(p => p.ProductId == id, p=>p.Product.Image, p => p.Product.Brand,
                     p => p.Product.SubCategory, p => p.Product.Reviews);
 
-                var threeProducts = (await _unitOfWork.Product.GetAllAsync(null,p=>p.Image)).Take(3).ToList();
+                var randomProducts = (await _unitOfWork.Product.GetAllAsync(null, p => p.Image)).ToList();
+                
+                Random random = new Random();
+                List<int> randomIndices = new List<int>();
+
+                while (randomIndices.Count < 3)
+                {
+                    int randomIndex = random.Next(0, randomProducts.Count - 1);
+                    if (!randomIndices.Contains(randomIndex))
+                    {
+                        randomIndices.Add(randomIndex);
+                    }
+                }
+
+                List<Product> threeProducts = randomIndices.Select(index => randomProducts[index]).ToList();
+
 
                 var ReviewWithUsers = await _unitOfWork.UserReview.GetAllAsync(p=>p.ProductId==id,i=>i.User.Image);
 
@@ -249,6 +263,7 @@ namespace Smarket.Controllers
                     }).ToList(),
                     productDtoFilters = threeProducts.Select(p=> new ProductDtoFilter
                     {
+                        ProductId= p.Id,
                         Name = p.Name,
                         ImageUrl=p.Image.Url,
                     }),
