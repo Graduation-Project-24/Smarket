@@ -71,7 +71,7 @@ namespace Smarket.Controllers
                     Username = realuser.UserName,
                     Packages = items.Select(item => new PackageDtoForCart
                     {
-                        PackageId = item.PackageId,
+                        ProductId= item.Package.ProductId,
                         ListPrice = item.Package.ListPrice,
                         Price = item.Package.Price,
                         ProductImageUrl = item.Package.Product.Image.Url.ToString(),
@@ -145,7 +145,7 @@ namespace Smarket.Controllers
         [HttpPost]
         [Route("RemoveFromCart")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> RemoveFromCart(int packageId)
+        public async Task<IActionResult> RemoveFromCart(ProductwithIdDto dto)
         {
             try
             {
@@ -155,8 +155,9 @@ namespace Smarket.Controllers
                 {
                     return NotFound("User not found");
                 }
+                var package = await _unitOfWork.Package.FirstOrDefaultAsync(x => x.ProductId == dto.productId);
 
-                var cartItem = await _unitOfWork.CartItem.FirstOrDefaultAsync(ci => ci.UserId == user.Id && ci.PackageId == packageId);
+                var cartItem = await _unitOfWork.CartItem.FirstOrDefaultAsync(ci => ci.UserId == user.Id && ci.PackageId == package.Id);
                 if (cartItem == null)
                 {
                     return NotFound("Product not found in the user's cart");
@@ -173,6 +174,38 @@ namespace Smarket.Controllers
             }
         }
 
+
+        [HttpPost]
+        [Route("RemoveFromCartMobile")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> RemoveFromCartMobile(int productId)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+                var package = await _unitOfWork.Package.FirstOrDefaultAsync(x => x.ProductId == productId);
+
+                var cartItem = await _unitOfWork.CartItem.FirstOrDefaultAsync(ci => ci.UserId == user.Id && ci.PackageId == package.Id);
+                if (cartItem == null)
+                {
+                    return NotFound("Product not found in the user's cart");
+                }
+
+                _unitOfWork.CartItem.Delete(cartItem);
+                await _unitOfWork.Save();
+
+                return Ok(new { Message = "Product removed from the cart successfully" });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "An error occurred while removing the product from the cart." });
+            }
+        }
 
 
         [HttpPost]
@@ -230,9 +263,7 @@ namespace Smarket.Controllers
 
                 var sessionUrl = await _stripeService.CreateCheckoutSession(orderItemsList);
 
-                Response.Headers.Add("Location", sessionUrl);
-
-                return new StatusCodeResult(303);
+                return Ok(new { SessionUrl = sessionUrl });
             }
             catch (Exception)
             {
