@@ -319,6 +319,44 @@ namespace Smarket.Controllers
             });
 
         }
+
+        [HttpPut]
+        [Route("UploadUserImage")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> UploadUserImage([FromForm]ImageUploadDto dto)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+
+            var image = await _imageService.AddPhotoAsync(dto.formFile);
+
+            var cloudImage = new Image
+            {
+                PublicId = image.PublicId,
+                Url = image.Url.ToString(),
+            };
+
+            user.Image = cloudImage; 
+
+           var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok(new
+                {
+                 Image = cloudImage.Url.ToString(),
+                });
+
+            }
+            return BadRequest("Failed to upload Image of user");
+
+        }
+
+
         [HttpPut]
         [Route("EditUserV2")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -362,6 +400,7 @@ namespace Smarket.Controllers
         }
 
 
+
         [HttpPost("forgotpassword")]
         public async Task<IActionResult> ForgotPassword(string email)
         {
@@ -403,11 +442,12 @@ namespace Smarket.Controllers
         }
 
         [HttpPost("ChangePassword")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                var user = await _userManager.GetUserAsync(User);
 
                 if (user is null)
                     return BadRequest("Email Not Found");

@@ -12,7 +12,7 @@ namespace Smarket.Services
 {
     public class StripeService : IStripeService
     {
-        public async Task<string> CreateCheckoutSession(IEnumerable<OrderItem> orderItemsList)
+        public async Task<string> CreateCheckoutSession(IEnumerable<CartItem> orderItemsList)
         {
             try
             {
