@@ -4,6 +4,6 @@ namespace Smarket.Services.IServices
 {
     public interface IStripeService
     {
-        Task<string> CreateCheckoutSession(IEnumerable<CartItem> orderItemsList);
+        Task<string> CreateCheckoutSession(IEnumerable<CartItem> cartItems, string successUrl);
     }
 }

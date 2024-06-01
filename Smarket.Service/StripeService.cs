@@ -12,7 +12,7 @@ namespace Smarket.Services
 {
     public class StripeService : IStripeService
     {
-        public async Task<string> CreateCheckoutSession(IEnumerable<CartItem> orderItemsList)
+        public async Task<string> CreateCheckoutSession(IEnumerable<CartItem> orderItemsList, string successUrl)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace Smarket.Services
                         Quantity = oi.Quantity,
                     }).ToList(),
                     Mode = "payment",
-                    SuccessUrl = domain + "/Done.html",
+                    SuccessUrl = successUrl,
                     CancelUrl = domain + "/fool.html",
                 };
 

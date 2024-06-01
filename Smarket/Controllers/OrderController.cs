@@ -253,7 +253,9 @@ namespace Smarket.Controllers
                     return NotFound("No Items in Cart Items");
                 }
 
-                var sessionUrl = await _stripeService.CreateCheckoutSession(cartItems);
+                var successUrl = Url.Action("ConfirmOrder", "Order", new { userId = user.Id }, Request.Scheme);
+
+                var sessionUrl = await _stripeService.CreateCheckoutSession(cartItems, successUrl);
 
                 return Ok(new { SessionUrl = sessionUrl });
             }
@@ -265,7 +267,7 @@ namespace Smarket.Controllers
 
         [HttpGet]
         [Route("ConfirmOrder")]
-        public async Task<IActionResult> ConfirmOrder(int orderId, string userId)
+        public async Task<IActionResult> ConfirmOrder(string userId)
         {
             try
             {
@@ -276,7 +278,7 @@ namespace Smarket.Controllers
                     return NotFound("User not found");
                 }
 
-                var cartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == user.Id);
+                var cartItems = await _unitOfWork.CartItem.GetAllAsync(ci => ci.UserId == user.Id, ci=>ci.Package);
 
                 if (cartItems == null || !cartItems.Any())
                 {
@@ -292,7 +294,6 @@ namespace Smarket.Controllers
 
                 var order = new Order
                 {
-                    Id = orderId,
                     Date = DateTime.Now,
                     TotalPrice = orderItemDtos.Sum(oi => oi.Price * oi.Quantity),
                     UserId = user.Id,
@@ -326,8 +327,8 @@ namespace Smarket.Controllers
                 }
                 await _unitOfWork.Save();
 
-                await _emailService.EmailSender(order.User.Email, "Order Confirmation", "Thank you for your order!");
-
+/*                await _emailService.EmailSender(order.User.Email, "Order Confirmation", "Thank you for your order!");
+*/
                 return Ok(new { Message = "Order confirmed successfully" });
             }
             catch (Exception)
