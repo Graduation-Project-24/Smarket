@@ -16,7 +16,7 @@ namespace Smarket.Services
         {
             try
             {
-                var domain = "http://127.0.0.1:5500/hello.html";
+                var domain = "http://smarkeewet.great-site.net";
                 var options = new SessionCreateOptions
                 {
                     PaymentMethodTypes = new List<string> { "card" },
@@ -36,8 +36,8 @@ namespace Smarket.Services
                         Quantity = oi.Quantity,
                     }).ToList(),
                     Mode = "payment",
-                    SuccessUrl = successUrl,
-                    CancelUrl = domain + "/fool.html",
+                    SuccessUrl = domain + "/confirm",
+                    CancelUrl = domain + "/deny",
                 };
 
                 var service = new SessionService();

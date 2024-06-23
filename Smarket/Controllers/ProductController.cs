@@ -38,8 +38,8 @@ namespace Smarket.Controllers
                     Description = p.Description,
                     SubCategoryName = p.SubCategory?.Name,
                     BrandName = p.Brand?.Name,
-                    BrandId = p.Brand?.Id ?? 0, // assuming BrandId is of type int
-                    SubCategoryId = p.SubCategory?.Id ?? 0, // assuming SubCategoryId is of type int
+                    BrandId = p.Brand?.Id ?? 0, 
+                    SubCategoryId = p.SubCategory?.Id ?? 0, 
                     ImageUrl = p.Image?.Url
                 });
 
@@ -52,6 +52,39 @@ namespace Smarket.Controllers
             }
         }
 
+        
+        [HttpGet("ProductRecomm")]
+        public async Task<ActionResult<IEnumerable<ProductDtoWebCard>>> ProductRecomm()
+        {
+            try
+            {
+                var packages = (await _unitOfWork.Package.GetAllAsync(null, p => p.Product.Image, p => p.Product.SubCategory
+                , p => p.Product.Brand, p => p.Product.Reviews)).ToList();
+
+
+                var productDtos = packages.Select(p => new ProductDtoWebCard
+                {
+                    Id = p.Product.Id,
+                    Name = p.Product.Name,
+                    Description = p.Product.Description,
+                    SubCategoryName = p.Product.SubCategory?.Name,
+                    BrandName = p.Product.Brand?.Name,
+                    ImageUrl = p.Product.Image?.Url,
+                    Price = p.Price,
+                    Reviews = p.Product.Reviews.Select(p => new ReviewDtoRateOnly
+                    {
+                        Rate = p.Rate,
+                    }).ToList()
+                });
+
+                return Ok(productDtos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting products");
+                return StatusCode(500, "Internal server error");
+            }
+        }
 
         [HttpGet("GetProductsWeb")]
         public async Task<ActionResult<IEnumerable<ProductDtoWebCard>>> GetProductsWeb()
